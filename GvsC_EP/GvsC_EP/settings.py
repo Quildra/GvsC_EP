@@ -31,7 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-
+    'polymorphic',
     'GvsC_Main.apps.GvscMainConfig',
     'django.contrib.admin',
     'django.contrib.auth',
