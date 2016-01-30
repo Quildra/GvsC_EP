@@ -3,3 +3,4 @@ Additional Requirements
 django-registration
 django-plugins
 django-polymorphic
+django-dirtyfields
