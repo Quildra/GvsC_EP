@@ -32,13 +32,14 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'polymorphic',
-    'GvsC_Main.apps.GvscMainConfig',
+    'GvsC_Main',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'djangoplugins',
 ]
 
 MIDDLEWARE_CLASSES = [
