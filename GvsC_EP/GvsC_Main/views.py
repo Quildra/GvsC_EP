@@ -1,3 +1,10 @@
-from django.shortcuts import render
+from django.http import Http404
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, render
 
-# Create your views here.
+from .models import Event, SinglePlayerTournament
+
+def index(request):
+    #upcoming_events = Event.objects.order_by('-start_date')[:5]
+    context = {}#{'upcoming_events': upcoming_events}
+    return render(request, 'index.html', context)
