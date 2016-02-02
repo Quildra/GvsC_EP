@@ -1,0 +1,43 @@
+{% load staticfiles %}
+
+<html>
+	<head>
+		<title>.:. Tourney .:.</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<link rel="stylesheet" type="text/css" href="{% static 'GvsC_Main/semantic/semantic.css' %}"/>
+		{%block head %} {% endblock head %}
+	</head>
+	<body>
+		<div class="ui large top fixed menu">
+			<div class="ui container">
+				<a class="active item">Home</a>
+				<a class="item">Work</a>
+				<a class="item">Company</a>
+				<a class="item">Careers</a>
+				<div class="right menu">
+					<div class="item">
+						<a class="ui button">Log in</a>
+					</div>
+					<div class="item">
+						<a class="ui primary button">Sign Up</a>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="pusher">
+			{%block main_content %} {% endblock main_content %}
+		</div>
+
+		<script src="{% static 'GvsC_Main/js/jquery-2.1.4.min.js' %}"></script>
+		<script src="{% static 'GvsC_Main/js/jquery.dotdotdot.js' %}"></script>
+		<script src="{% static 'GvsC_Main/semantic/semantic.js' %}" type="text/javascript"></script>
+		<script type="text/javascript">
+			window.semantic = { handler: {} };
+			$(document).ready(semantic.ready);
+		</script>
+
+		{% block javascript_includes %}{% endblock javascript_includes %}
+
+	</body>
+</html>
