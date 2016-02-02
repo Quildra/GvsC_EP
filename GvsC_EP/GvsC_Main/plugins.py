@@ -1,10 +1,7 @@
-from djangoplugins.point import PluginPoint
+from __future__ import absolute_import
 
-class GamePluginPoint(PluginPoint):
-    """
-    """
-    pass
-    
+from GvsC_EP.plugins import GamePluginPoint
+
 class MTG_GamePlugin(GamePluginPoint):
     name = 'MTG'
     title = 'Magic: The Gathering'
