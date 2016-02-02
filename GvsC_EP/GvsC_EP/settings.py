@@ -31,8 +31,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'polymorphic',
-    'GvsC_Main',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,6 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'djangoplugins',
+    'polymorphic',
+    'GvsC_EP',
+    'GvsC_Main',
 ]
 
 MIDDLEWARE_CLASSES = [
