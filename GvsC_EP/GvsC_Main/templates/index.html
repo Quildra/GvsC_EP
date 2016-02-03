@@ -1,5 +1,6 @@
 {% extends "base.html" %}
-{% load staticfiles%}
+{% load staticfiles %}
+{% load range_filter %}
 
 {% block head %}
 
@@ -36,43 +37,46 @@
 </div>
 
 <div class="ui vertical stripe segment">
-	<h2 class="ui header">
-		<i class="calendar icon"></i>
-		<div class="content">
-			Upcoming Events and Tournaments
-		</div>
-	</h2>
-	<div class="ui middle aligned stackable grid container">
-		<div class="ui three column grid">
-		{% for i in 0,5 %}
-			<div class="column">
-				<div class="ui segment">
-					<h2 class="ui header">
-						<div class="content">
-							<a href="/events/{{event.pk}}/">{{ i }}</a>
-						</div>
-					</h2>
-					<div class="ui equal width grid">
-						<div class="equal width row">
-							<div class="column">
-								<h3>Start Date:</h3> {{ i }} Jan 2016
+	
+	<div class="ui middle aligned container">
+		<h2 class="ui header">
+			<i class="calendar icon"></i>
+			<div class="content">
+				Upcoming Events and Tournaments
+			</div>
+		</h2>
+		<div class="ui stackable grid">
+			<div class="ui three column centered grid">
+			{% for i in 6|get_range %}
+				<div class="five wide column">
+					<div class="ui segment">
+						<h2 class="ui header">
+							<div class="content">
+								<a href="/events/{{event.pk}}/">{{ i }}</a>
 							</div>
-							<div class="column">
-								<h3>End Date:</h3> {{ i }} Jan 2016
+						</h2>
+						<div class="ui equal width grid">
+							<div class="equal width row">
+								<div class="column">
+									<h3>Start Date:</h3> {{ i }} Jan 2016
+								</div>
+								<div class="column">
+									<h3>End Date:</h3> {{ i }} Jan 2016
+								</div>
 							</div>
 						</div>
-					</div>
-					<h3 class="ui left aligned header">
-						<div class="content">
-							Description:
+						<h3 class="ui left aligned header">
+							<div class="content">
+								Description:
+							</div>
+						</h3>
+						<div class="ui left aligned container ellipsis" style="height: 50px;">
+							I once had a puppy, little dog of my own! poopa! poopa scoopa!
 						</div>
-					</h3>
-					<div class="ui left aligned container ellipsis" style="height: 50px;">
-						I once had a puppy, little dog of my own! poopa! poopa scoopa!
 					</div>
 				</div>
+			{% endfor %}
 			</div>
-		{% endfor %}
 		</div>
 	</div>
 </div>
