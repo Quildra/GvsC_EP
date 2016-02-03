@@ -5,19 +5,30 @@
 		<title>.:. Gaming vs Cancer .:.</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<link rel="stylesheet" type="text/css" href="{% static 'GvsC_Main/semantic/semantic.css' %}"/>
+		<style type="text/css">
+			.GvsC_blue{
+				color:#16C1F3 ! important;
+			}
+			.GvsC_blue.button{
+				color:#ffffff ! important;
+				background-color:#16C1F3 ! important;
+			}
+		</style>
 		{%block head %} {% endblock head %}
 	</head>
 	<body>
 		<div class="ui large top fixed menu">
 			<div class="ui container">
-				<a class="active item">Home</a>
-				<a class="item">Work</a>
-				<a class="item">Company</a>
-				<a class="item">Careers</a>
+				<a class="active item" href="/">Home</a>
+				<a class="item" href="/events">Events</a>
+				<a class="item"href="/tournaments">Tournaments</a>
 				<div class="right menu">
-					<div class="item">
-						<a class="ui button">Log in</a>
-					</div>
+					{% if request.user.is_authenticated == False %}
+						<a class="ui item" href="/accounts/login">
+						  <i class="sign in icon"></i>
+						  Sign In
+						</a>
+					{% endif %}
 					<div class="item">
 						<a class="ui primary button">Sign Up</a>
 					</div>
