@@ -19,7 +19,7 @@
 	<body>
 		<div class="ui large top fixed menu">
 			<div class="ui container">
-				<a class="active item" href="/">Home</a>
+				<a class="item" href="/">Home</a>
 				<a class="item" href="/events">Events</a>
 				<a class="item"href="/tournaments">Tournaments</a>
 				<div class="right menu">
@@ -28,10 +28,25 @@
 						  <i class="sign in icon"></i>
 						  Sign In
 						</a>
+						<div class="item">
+							<a class="ui primary button">Sign Up</a>
+						</div>
+					{% else %}
+						<a class="ui item" href="/accounts/profile">
+						  <i class="user icon"></i>
+						  Profile
+						</a>
+						<div class="item">
+							<a class="ui primary button">Sign Out</a>
+						</div>
+						{% if request.user.is_staff == True %}
+							<a class="ui item" href="/admin">
+						  		<i class="settings icon"></i>
+						  		Admin
+							</a>
+						{% endif %}
 					{% endif %}
-					<div class="item">
-						<a class="ui primary button">Sign Up</a>
-					</div>
+					
 				</div>
 			</div>
 		</div>
