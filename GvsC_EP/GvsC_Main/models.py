@@ -25,7 +25,6 @@ class Team(models.Model):
 class Tournament(PolymorphicModel):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     game_plugin = PluginField(GamePluginPoint)
-    #game_system = models.ForeignKey(GameSystem, on_delete=models.CASCADE)
     #pairing_system = models.ForeignKey(Event, on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     registration_start = models.TimeField()
