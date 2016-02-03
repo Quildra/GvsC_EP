@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load range_filter %}
+
+{% block head %}
+
+<style type="text/css">
+	.masthead.segment {
+      padding: 1em 0em;
+    }
+    .masthead .logo.item img {
+      margin-right: 1em;
+    }
+    .masthead .ui.menu .ui.button {
+      margin-left: 0.5em;
+    }
+    .masthead img {
+      margin-top: 4em;
+      margin-bottom: 0em;
+    }
+    .masthead h2 {
+      font-size: 1.7em;
+      font-weight: normal;
+    }
+</style>
+
+{% endblock head %}
+
+{% block main_content %}
+
+<div class="ui inverted vertical masthead center aligned segment">
+	<div class="ui container">
+		<img class="ui small image" src="{% static 'GvsC_Main/rsz_1gvc_logo.png' %}">
+    </div>
+</div>
+
+{% for event in upcoming_events %}
+
+{% empty %}
+
+{% endfor %}
+
+{% endblock main_content %}

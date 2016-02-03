@@ -42,11 +42,13 @@
 				Log-in to your account
 			</div>
 		</h2>
-		<form class="ui large form">
+		<form class="ui large form" method="post" action=".">
 			<div class="ui stacked segment">
 				{% csrf_token %} 
 				{{ form.as_p }}
-				<div class="ui fluid large GvsC_blue submit button">Login</div>
+				<!-- <div class="ui fluid large GvsC_blue submit button">Login</div> -->
+				<input type="submit" value="{% trans 'Log in' %}" />
+  				<input type="hidden" name="next" value="{{ next }}" />
 			</div>
 
 			<div class="ui error message"></div>
