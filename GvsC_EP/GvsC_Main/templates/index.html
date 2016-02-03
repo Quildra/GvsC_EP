@@ -47,21 +47,21 @@
 		</h2>
 		<div class="ui stackable grid">
 			<div class="ui three column centered grid">
-			{% for i in 6|get_range %}
+			{% for event in upcoming_events %}
 				<div class="five wide column">
 					<div class="ui segment">
 						<h2 class="ui header">
 							<div class="content">
-								<a href="/events/{{event.pk}}/">{{ i }}</a>
+								<a href="/events/{{event.pk}}/">{{ event.name }}</a>
 							</div>
 						</h2>
 						<div class="ui equal width grid">
 							<div class="equal width row">
 								<div class="column">
-									<h3>Start Date:</h3> {{ i }} Jan 2016
+									<h3>Start Date:</h3> {{ event.start_date }}
 								</div>
 								<div class="column">
-									<h3>End Date:</h3> {{ i }} Jan 2016
+									<h3>End Date:</h3> {{ event.end_date }}
 								</div>
 							</div>
 						</div>
@@ -71,10 +71,41 @@
 							</div>
 						</h3>
 						<div class="ui left aligned container ellipsis" style="height: 50px;">
-							I once had a puppy, little dog of my own! poopa! poopa scoopa!
+							{{ event.description }}
 						</div>
 					</div>
 				</div>
+				{% for i in forloop.counter|loop_to_multipule:3 %}
+					<div class="five wide column">
+						<div class="ui segment">
+							<h2 class="ui header">
+								<div class="content">
+									Coming Soon
+								</div>
+							</h2>
+							<div class="ui equal width grid">
+								<div class="equal width row">
+									<div class="column">
+										<h3>Start Date:</h3> ???
+									</div>
+									<div class="column">
+										<h3>End Date:</h3> ???
+									</div>
+								</div>
+							</div>
+							<h3 class="ui left aligned header">
+								<div class="content">
+									Description:
+								</div>
+							</h3>
+							<div class="ui left aligned container ellipsis" style="height: 50px;">
+								If you would like to host an event under the Gaming vs Cancer banner please contact us!
+							</div>
+						</div>
+					</div>
+				{% endfor %}
+			{% empty %}
+			
 			{% endfor %}
 			</div>
 		</div>
@@ -82,3 +113,13 @@
 </div>
 
 {% endblock main_content %}
+
+{% block javascript_includes %}
+	<script type="text/javascript">
+	$(document).ready(function() {
+		$(".ellipsis").dotdotdot({
+        // configuration goes here
+		});
+	});
+	</script>
+{% endblock javascript_includes %}

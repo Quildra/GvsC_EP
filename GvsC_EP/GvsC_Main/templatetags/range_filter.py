@@ -22,3 +22,16 @@ def get_range( value ):
     Instead of 3 one may use the variable set in the views
     """
     return range( value )
+
+@register.filter    
+def loop_to_multipule(value, arg):
+    additional_loops = 0
+    
+    remainder = value % arg
+    if remainder == 0:
+        return additional_loops
+        
+    next_closest_multipule = value + arg - remainder
+    difference = next_closest_multipule - value
+    
+    return range(difference)
