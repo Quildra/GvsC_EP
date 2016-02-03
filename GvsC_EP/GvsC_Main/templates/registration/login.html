@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+
+{% block head %}
+
+<style type="text/css">
+.outer {
+    display: table;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+}
+
+.middle {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.inner {
+    margin-left: auto;
+    margin-right: auto; 
+    width: /*whatever width you want*/;
+}
+</style>
+
+{% endblock head %}
+
+
+{% block main_content %}
+
+<div class="outer">
+<div class="middle">
+<div class="inner">
+
+<div class="ui one column stackable center aligned page grid">
+	<div class="column twelve wide">
+	  <div class="column">
+		<h2 class="ui GvsC_blue image header">
+			<img class="ui centered Medium image" src="{% static 'GvsC_Main/rsz_1gvc_logo.png' %}">
+			<div class="content">
+				Log-in to your account
+			</div>
+		</h2>
+		<form class="ui large form">
+			<div class="ui stacked segment">
+				{% csrf_token %} 
+				{{ form.as_p }}
+				<div class="ui fluid large GvsC_blue submit button">Login</div>
+			</div>
+
+			<div class="ui error message"></div>
+
+		</form>
+
+		<div class="ui center aligned message">
+		  <p>New to us? <a href="#">Sign Up</a></p>
+		  <p>{% trans "Forgot password" %}? <a href="{% url 'auth_password_reset' %}">{% trans "Reset it" %}</a>!</p>
+		</div>
+	  </div>
+	</div>
+</div>
+
+</div>
+</div>
+</div>
+
+
+{% endblock main_content %}
