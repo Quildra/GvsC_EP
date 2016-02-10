@@ -18,6 +18,10 @@ def events_index(request):
     upcoming_events = Event.objects.order_by('-start_date')
     context = {'upcoming_events': upcoming_events}
     return render(request, 'events/index.html', context)
+    
+def events_details(request, event_id):
+    event = get_object_or_404(Event, pk = event_id)
+    return render(request, 'events/details.html', {'event': event})
 
 def tournaments_index(request):
     upcoming_tournaments = Tournament.objects.order_by('+id')
