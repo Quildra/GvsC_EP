@@ -81,13 +81,21 @@
 								<a href="/tournaments/{{tournament.pk}}/">{{ tournament.title }}</a>
 							</div>
 						</h2>
-						<h3 class="ui header">
+						<h3 class="ui centered header">
 							<div class="content">
 								{{ tournament.game_plugin.title }}
 							</div>
 						</h3>
-						<h4 class="inline_header" >Regestration Start:</h4> <span>{{ tournament.registration_start }}</span>
-						<h4 class="inline_header" >First Round Begins:</h4> <span>{{ tournament.first_round_begins }}</span>
+						<div class="ui equal width grid">
+							<div class="equal width row">
+								<div class="column">
+									<h4>Regestration:</h4> {{ tournament.registration_start }}
+								</div>
+								<div class="column">
+									<h4>Round One:</h4> {{ tournament.registration_start }}
+								</div>
+							</div>
+						</div>
 						<h4 class="ui left aligned header">
 							<div class="content">
 								Description:
@@ -106,13 +114,21 @@
 									Sponser Advert here?
 								</div>
 							</h2>
-							<h3 class="ui header">
+							<h3 class="ui centered header">
 								<div class="content">
 									{{ tournament.game_plugin.title }}
 								</div>
 							</h3>
-							<h4 class="inline_header" >Regestration Start:</h4> {{ tournament.registration_start }}
-							<h4 class="inline_header" >First Round Begins:</h4> {{ tournament.first_round_begins }}
+							<div class="ui equal width grid">
+								<div class="equal width row">
+									<div class="column">
+										<h4>Regestration:</h4> {{ tournament.registration_start }}
+									</div>
+									<div class="column">
+										<h4>Round One:</h4> {{ tournament.registration_start }}
+									</div>
+								</div>
+							</div>
 							<h4 class="ui left aligned header">
 								<div class="content">
 									Description:
