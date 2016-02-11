@@ -10,5 +10,5 @@ urlpatterns = [
     # ex: /tournaments/
     url(r'^tournaments/$', views.tournaments_index, name='index'),
     # ex: /tournaments/5/
-    #url(r'^tournaments/(?P<tournament_id>[0-9]+)/$', views.tournaments_details, name='index'),
+    url(r'^tournaments/(?P<tournament_id>[0-9]+)/$', views.tournaments_details, name='index'),
 ]

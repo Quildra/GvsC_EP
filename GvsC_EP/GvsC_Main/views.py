@@ -27,3 +27,7 @@ def tournaments_index(request):
     upcoming_tournaments = Tournament.objects.order_by('+id')
     context = {'upcoming_tournaments': upcoming_tournaments}
     return render(request, 'tournaments/index.html', context)
+    
+def tournaments_details(request, tournament_id):
+    tournament = get_object_or_404(Tournament, pk = tournament_id)
+    return render(request, 'tournaments/details.html', {'tournament': tournament})

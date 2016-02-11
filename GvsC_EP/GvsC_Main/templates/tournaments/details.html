@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load range_filter %}
+
+{% block head %}
+
+<style type="text/css">
+	.masthead.segment {
+      padding: 1em 0em;
+    }
+    .masthead .logo.item img {
+      margin-right: 1em;
+    }
+    .masthead .ui.menu .ui.button {
+      margin-left: 0.5em;
+    }
+    .masthead h2 {
+      font-size: 1.7em;
+      font-weight: normal;
+    }
+	.inline_header {
+		display: inline-block;
+	}
+</style>
+
+{% endblock head %}
+
+{% block main_content %}
+<div style="margin-top:3.5em;">
+	<div class="ui inverted vertical masthead segment">
+		<div class="ui container">
+			<div class="ui items">
+				<div class="item">
+					<div class="ui small image">
+						<img src="{% static 'GvsC_Main/rsz_1gvc_logo.png' %}">
+					</div>
+					<div class="middle aligned content">
+						<h3 class="ui huge header GvsC_white">
+							{{ tournament.title }}
+						</h3>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="ui middle aligned container" style="margin-top:1em;">
+	<div class="ui segment">
+		<h3 class="ui centered header">
+			<div class="content">
+				{{ tournament.game_plugin.title }}
+			</div>
+		</h3>
+		<div class="ui equal width grid">
+			<div class="equal width row">
+				<div class="column">
+					<h4>Registration:</h4> {{ tournament.registration_start }}
+				</div>
+				<div class="column">
+					<h4>Round One:</h4> {{ tournament.registration_start }}
+				</div>
+			</div>
+		</div>
+		<h3 class="ui left aligned header">
+			<div class="content">
+				Description:
+			</div>
+		</h3>
+		<div class="ui left aligned container">
+			{{ tournament.description }}
+		</div>
+	</div>
+	<div class="ui pointing menu">
+		<a class="active blue item" data-tab="players"> Players </a>
+		<a class="green item" data-tab="standings"> Standings </a>
+		{% if request.user.is_authenticated == True %}
+			{% if request.user.is_staff == True %}
+				<a class="red item" data-tab="manage"> Manage </a>
+			{% endif %}
+		{% endif %}
+	</div>
+	<div class="ui active tab segment" data-tab="players">
+		Players
+	</div>
+	<div class="ui tab segment" data-tab="standings">
+		Standings
+	</div>
+	{% if request.user.is_authenticated == True %}
+		{% if request.user.is_staff == True %}
+			<div class="ui tab segment" data-tab="manage">
+				Shh
+			</div>
+		{% endif %}
+	{% endif %}
+</div>
+{% endblock main_content %}
+
+{% block javascript_includes %}
+<script>
+$(".ui.pointing.menu .item").tab({history:false});
+</script>
+{% endblock javascript_includes %}
