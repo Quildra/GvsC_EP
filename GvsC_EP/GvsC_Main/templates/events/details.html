@@ -44,8 +44,8 @@
 		</div>
 	</div>
 </div>
-<div class="ui middle aligned container">
-	<div class="ui segment" style="margin-top:1em;">
+<div class="ui middle aligned container" style="margin-top:1em;">
+	<div class="ui segment">
 		<div class="ui equal width grid">
 			<div class="equal width row">
 				<div class="column">
@@ -70,15 +70,47 @@
 			<i class="circular Checkered Flag icon"></i>
 			Tournaments
 		</h3>
-		<div class="ui stackable grid">
-			<div class="ui three column centered grid">
-			
-			{% for tournament in event.tournament_set.all %}
-				<div class="five wide column">
-					<div class="ui segment">
+		
+		<div class="ui three stackable cards">
+		{% for tournament in event.tournament_set.all %}
+			<div class="card">
+				<div class="content">
+					<h2 class="ui centered header">
+						<div class="content">
+							<a href="/tournaments/{{tournament.pk}}/">{{ tournament.title }}</a>
+						</div>
+					</h2>
+					<h3 class="ui centered header">
+						<div class="content">
+							{{ tournament.game_plugin.title }}
+						</div>
+					</h3>
+					<div class="ui equal width grid">
+						<div class="equal width row">
+							<div class="column">
+								<h4>Registration:</h4> {{ tournament.registration_start }}
+							</div>
+							<div class="column">
+								<h4>Round One:</h4> {{ tournament.registration_start }}
+							</div>
+						</div>
+					</div>
+					<h4 class="ui left aligned header">
+						<div class="content">
+							Description:
+						</div>
+					</h4>
+					<div class="ui left aligned container" style="max-height: 5em; overflow-y:hidden;">
+						{{ tournament.description }}
+					</div>
+				</div>
+			</div>
+			{% for i in forloop.counter|loop_to_multipule:3 %}
+				<div class="card">
+					<div class="content">
 						<h2 class="ui centered header">
 							<div class="content">
-								<a href="/tournaments/{{tournament.pk}}/">{{ tournament.title }}</a>
+								Sponser Advert here?
 							</div>
 						</h2>
 						<h3 class="ui centered header">
@@ -101,50 +133,15 @@
 								Description:
 							</div>
 						</h4>
-						<div class="ui left aligned container ellipsis" style="height: 3em; overflow-y:hidden;">
-							{{ tournament.description }}
+						<div class="ui left aligned container" style="max-height: 5em; overflow-y:hidden;">
+							If you would like to host an event under the Gaming vs Cancer banner please contact us!
 						</div>
 					</div>
 				</div>
-				{% for i in forloop.counter|loop_to_multipule:3 %}
-					<div class="five wide column">
-						<div class="ui segment">
-							<h2 class="ui centered header">
-								<div class="content">
-									Sponser Advert here?
-								</div>
-							</h2>
-							<h3 class="ui centered header">
-								<div class="content">
-									{{ tournament.game_plugin.title }}
-								</div>
-							</h3>
-							<div class="ui equal width grid">
-								<div class="equal width row">
-									<div class="column">
-										<h4>Registration:</h4> {{ tournament.registration_start }}
-									</div>
-									<div class="column">
-										<h4>Round One:</h4> {{ tournament.registration_start }}
-									</div>
-								</div>
-							</div>
-							<h4 class="ui left aligned header">
-								<div class="content">
-									Description:
-								</div>
-							</h4>
-							<div class="ui left aligned container ellipsis" style="height: 3em; overflow-y:hidden;">
-								If you would like to host an event under the Gaming vs Cancer banner please contact us!
-							</div>
-						</div>
-					</div>
-				{% endfor %}
-			{% empty %}
-				No tournaments currently schedualed, check back later. 
 			{% endfor %}
-			
-			</div>
+		{% empty %}
+			No tournaments currently schedualed, check back later. 
+		{% endfor %}
 		</div>
 	</div>
 </div>
