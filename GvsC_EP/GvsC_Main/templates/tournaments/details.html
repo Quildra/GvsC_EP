@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load range_filter %}
+{% load plugin_api %}
 
 {% block head %}
 
@@ -71,19 +72,15 @@
 		</div>
 	</div>
 	<div class="ui pointing menu">
-		<a class="active blue item" data-tab="players"> Players </a>
-		<a class="green item" data-tab="standings"> Standings </a>
+		<a class="active green item" data-tab="standings"> Standings </a>
 		{% if request.user.is_authenticated == True %}
 			{% if request.user.is_staff == True %}
 				<a class="red item" data-tab="manage"> Manage </a>
 			{% endif %}
 		{% endif %}
 	</div>
-	<div class="ui active tab segment" data-tab="players">
-		Players
-	</div>
-	<div class="ui tab segment" data-tab="standings">
-		Standings
+	<div class="active ui tab segment" data-tab="standings">
+		{% render_standings_table tournament %}
 	</div>
 	{% if request.user.is_authenticated == True %}
 		{% if request.user.is_staff == True %}
