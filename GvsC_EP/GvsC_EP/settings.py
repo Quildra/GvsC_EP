@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'polymorphic',
     'GvsC_EP',
     'GvsC_Main',
+    'GvsC_Plugin_MTG',
 ]
 
 MIDDLEWARE_CLASSES = [
