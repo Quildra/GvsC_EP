@@ -1,6 +1,6 @@
 from django.contrib import admin
 from polymorphic.admin import PolymorphicParentModelAdmin, PolymorphicChildModelAdmin, PolymorphicChildModelFilter
-from .models import Event, Tournament, SinglePlayerTournament, TeamTournament
+from .models import Player, Event, Tournament, SinglePlayerTournament, TeamTournament
 
 class SinglePlayerTournamentAdmin(PolymorphicChildModelAdmin):
     base_model = SinglePlayerTournament
@@ -18,5 +18,6 @@ class TournamentAdmin(PolymorphicParentModelAdmin):
     )
 
 admin.site.register(Event)
+admin.site.register(Player)
 admin.site.register(Tournament, TournamentAdmin)
 
