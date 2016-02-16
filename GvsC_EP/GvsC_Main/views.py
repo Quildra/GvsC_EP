@@ -1,6 +1,9 @@
 from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
+from django.utils.safestring import mark_safe
+from django.template.loader import render_to_string
+import json
 
 from .models import Event, Tournament
 
@@ -31,3 +34,9 @@ def tournaments_index(request):
 def tournaments_details(request, tournament_id):
     tournament = get_object_or_404(Tournament, pk = tournament_id)
     return render(request, 'tournaments/details.html', {'tournament': tournament})
+    
+def tournaments_next_round(request, tournament_id):
+    if request.is_ajax():
+        tournament = get_object_or_404(Tournament, pk = tournament_id)
+        html = render_to_string('tournaments/round_table.html', {'tournament': tournament})
+        return HttpResponse(json.dumps({'html': mark_safe(html)}), content_type="application/json")

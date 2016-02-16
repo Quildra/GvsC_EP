@@ -73,6 +73,7 @@
 	</div>
 	<div class="ui pointing menu">
 		<a class="active green item" data-tab="standings"> Standings </a>
+		<a class="blue item" data-tab="pairings"> Pairings </a>
 		{% if request.user.is_authenticated == True %}
 			{% if request.user.is_staff == True %}
 				<a class="red item" data-tab="manage"> Manage </a>
@@ -81,6 +82,18 @@
 	</div>
 	<div class="active ui tab segment" data-tab="standings">
 		{% render_standings_table tournament %}
+	</div>
+	<div class="ui tab segment" data-tab="pairings">
+		<!-- Start next round button - Finish tournament button -->
+		<div class="ui segment">
+			<div id="next_round" class="ui primary button" data-tournament_id="{{tournament.pk}}">Create Next Round</div>
+		</div>
+		<div id="round_container">
+			
+		</div>
+		<!-- Currently running round -->
+		<!-- last completed round (editable) -->
+		<!-- round history -->
 	</div>
 	{% if request.user.is_authenticated == True %}
 		{% if request.user.is_staff == True %}
@@ -94,6 +107,17 @@
 
 {% block javascript_includes %}
 <script>
+$.fn.api.settings.api = {
+  'start next round' : '/tournaments/{tournament_id}/next_round',
+};
+$("#next_round").api({
+action: 'start next round',
+onSuccess: function(response) {
+      // valid response and response.success = true
+	  document.getElementById("round_container").innerHTML = response.html;
+    },
+});
 $(".ui.pointing.menu .item").tab({history:false});
+
 </script>
 {% endblock javascript_includes %}
