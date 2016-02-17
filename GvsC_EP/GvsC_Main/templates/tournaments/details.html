@@ -88,12 +88,13 @@
 		<div class="ui segment">
 			<div id="next_round" class="ui primary button" data-tournament_id="{{tournament.pk}}">Create Next Round</div>
 		</div>
-		<div id="round_container">
-			
-		</div>
 		<!-- Currently running round -->
 		<!-- last completed round (editable) -->
 		<!-- round history -->
+		<div id="round_container">
+			{% include "tournaments/round_table.html" %}
+		</div>
+		
 	</div>
 	{% if request.user.is_authenticated == True %}
 		{% if request.user.is_staff == True %}
