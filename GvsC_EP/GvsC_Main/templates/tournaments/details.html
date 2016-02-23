@@ -85,9 +85,13 @@
 	</div>
 	<div class="ui tab segment" data-tab="pairings">
 		<!-- Start next round button - Finish tournament button -->
-		<div class="ui segment">
-			<div id="next_round" class="ui primary button" data-tournament_id="{{tournament.pk}}">Create Next Round</div>
-		</div>
+        {% if request.user.is_authenticated == True %}
+            {% if request.user.is_staff == True %}
+                <div class="ui segment">
+                    <div id="next_round" class="ui primary button" data-tournament_id="{{tournament.pk}}">Create Next Round</div>
+                </div>
+            {% endif %}
+        {% endif %}
 		<!-- Currently running round -->
 		<!-- last completed round (editable) -->
 		<!-- round history -->

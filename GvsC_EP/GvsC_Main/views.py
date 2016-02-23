@@ -40,6 +40,11 @@ def tournaments_details(request, tournament_id):
 def tournaments_next_round(request, tournament_id):
     if request.is_ajax():
         tournament = get_object_or_404(Tournament, pk = tournament_id)
+        
+        if not request.user.is_authenticated or not request.user.is_staff:
+            html = render_to_string('tournaments/round_table.html', {'tournament': tournament})
+            return HttpResponse(json.dumps({'html': mark_safe(html)}), content_type="application/json")
+        
         player_count = tournament.players.count()
         needs_a_bye = player_count % 2 == 1
         num_matches = int(player_count * 0.5)
