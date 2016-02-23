@@ -1,5 +1,12 @@
 from __future__ import absolute_import
 from random import randint
+from itertools import tee, zip_longest
+
+def grouper(iterable, n, fillvalue=None):
+    "Collect data into fixed-length chunks or blocks"
+    # grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx"
+    args = [iter(iterable)] * n
+    return zip_longest(*args, fillvalue=fillvalue)
 
 from GvsC_EP.plugins import GamePluginPoint
 
@@ -16,6 +23,7 @@ class MTG_GamePlugin(GamePluginPoint):
         player['game_win_percent'] = 0
         player['opp_game_win_percent'] = 0
         player['byes'] = 0
+        player['player'] = pPlayer
         
         return player
 
@@ -29,7 +37,7 @@ class MTG_GamePlugin(GamePluginPoint):
                 players.append(self._CalcualtePlayerStats(player))
                 
         # Sort the players
-        players.sort(key = lambda player: (player['match_points'], player['opp_match_win_percent'], player['game_win_percent'],player['opp_game_win_percent'], player['byes'], player['name']), reverse=True)        
+        players.sort(key = lambda player: (player['match_points'], player['opp_match_win_percent'], player['game_win_percent'],player['opp_game_win_percent'], player['byes'], player['name']), reverse=True)
         table_string = ''
         table_string += '<table class="ui celled padded table">\r\n'
         table_string += '\t<thead>\r\n'
@@ -52,3 +60,17 @@ class MTG_GamePlugin(GamePluginPoint):
         table_string += '\t</tbody>\r\n'
         table_string += '</table>\r\n'
         return table_string
+        
+    def PairRound(self, pTournament):
+        single_player_tournament = hasattr(pTournament, 'players')
+        players = []
+        if single_player_tournament:
+            for i, player in enumerate(pTournament.players.all()):
+                # Calculate the points and tie breakers for each player
+                # store them locally to be sorted.
+                players.append(self._CalcualtePlayerStats(player))
+                
+        # Sort the players
+        players.sort(key = lambda player: (player['match_points'], player['opp_match_win_percent'], player['game_win_percent'],player['opp_game_win_percent'], player['byes'], player['name']), reverse=True)
+        pairings = list(grouper(players, 2))
+        return pairings

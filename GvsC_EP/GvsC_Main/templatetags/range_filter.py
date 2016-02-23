@@ -22,6 +22,10 @@ def get_range( value ):
     Instead of 3 one may use the variable set in the views
     """
     return range( value )
+    
+@register.filter
+def get_one_based_range( value ):
+    return range( 1, value+1 )
 
 @register.filter    
 def loop_to_multipule(value, arg):

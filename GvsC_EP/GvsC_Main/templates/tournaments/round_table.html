@@ -1,5 +1,15 @@
+{% load plugin_api %}
+{% load range_filter %}
+
 {{needs_a_bye}}
 {{num_matches}}
-{% for match in event.match_set.all reversed%}
-Hello
-{% endfor %}
+{{num_rounds}}
+
+{% if num_rounds != None %}
+	{% for i in num_rounds|get_one_based_range reversed %}
+	{{i}}
+		{% for match in tournament|get_matches_in_round:i %}
+			Hello
+		{% endfor %}
+	{% endfor %}
+{% endif %}
