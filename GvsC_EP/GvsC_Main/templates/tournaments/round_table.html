@@ -1,15 +1,28 @@
 {% load plugin_api %}
 {% load range_filter %}
 
-{{needs_a_bye}}
-{{num_matches}}
-{{num_rounds}}
-
 {% if num_rounds != None %}
 	{% for i in num_rounds|get_one_based_range reversed %}
-	{{i}}
-		{% for match in tournament|get_matches_in_round:i %}
-			Hello
-		{% endfor %}
+        <div class="ui segment">
+            <h3> Round {{i}} </h3>
+            <table class="ui celled padded table">
+                <thead>
+                    <tr>
+                        <th> Player 1 </th>
+                        <th> Vs. </th>
+                        <th> Player 2 </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for match in tournament|get_matches_in_round:i %}
+                        <tr>
+                            <td>{{match.seating_set.first.player.name}}</td>
+                            <td>Vs.</td>
+                            <td>{{match.seating_set.last.player.name}}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 	{% endfor %}
 {% endif %}

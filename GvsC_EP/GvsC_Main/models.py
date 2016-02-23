@@ -51,6 +51,7 @@ class Match(models.Model):
     
 class Seating(PolymorphicModel):
     seat_number = models.PositiveSmallIntegerField()
+    table_number = models.PositiveSmallIntegerField()
     place = models.PositiveSmallIntegerField()
     score = models.PositiveSmallIntegerField()
     match = models.ForeignKey(Match, on_delete=models.CASCADE)
