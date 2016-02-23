@@ -45,7 +45,7 @@ class MTG_GamePlugin(GamePluginPoint):
         table_string += '\t\t\t<th>Place</th>\r\n'
         table_string += '\t\t\t<th>Name</th>\r\n'
         table_string += '\t\t\t<th>Match Points</th>\r\n'
-        table_string += '\t\t<tr>\r\n'
+        table_string += '\t\t</tr>\r\n'
         table_string += '\t</thead>\r\n'
         table_string += '\t<tbody>\r\n'
         if single_player_tournament:
@@ -74,3 +74,65 @@ class MTG_GamePlugin(GamePluginPoint):
         players.sort(key = lambda player: (player['match_points'], player['opp_match_win_percent'], player['game_win_percent'],player['opp_game_win_percent'], player['byes'], player['name']), reverse=True)
         pairings = list(grouper(players, 2))
         return pairings
+        
+    def GeneratePairingsTable(self, pTournament, pRoundNumber):
+        single_player_tournament = hasattr(pTournament, 'players')
+
+        table_string = ''
+        table_string += '<table class="ui celled padded table">\r\n'
+        table_string += '\t<thead>\r\n'
+        table_string += '\t\t<tr>\r\n'
+        table_string += '\t\t\t<th>Player 1</th>\r\n'
+        table_string += '\t\t\t<th>Player 1 Games Won</th>\r\n'
+        table_string += '\t\t\t<th>Player 2</th>\r\n'
+        table_string += '\t\t\t<th>Player 2 Games Won</th>\r\n'
+        table_string += '\t\t\t<th>Report Result</th>\r\n'
+        table_string += '\t\t</tr>\r\n'
+        table_string += '\t</thead>\r\n'
+        table_string += '\t<tbody>\r\n'
+        if single_player_tournament:
+            for match in pTournament.match_set.filter(round_number__iexact=pRoundNumber):
+                if match.is_bye == True:
+                    continue
+                table_string += '\t\t<tr>\r\n'
+                table_string += '\t\t\t<td>' + match.seating_set.first().player.name + '</td>\r\n'
+                table_string += '\t\t\t<td>' + str(2) + '</td>\r\n'
+                table_string += '\t\t\t<td>' + match.seating_set.last().player.name + '</td>\r\n'
+                table_string += '\t\t\t<td>' + str(1) + '</td>\r\n'
+                table_string += '\t\t\t<td>' + 'Edit' + '</td>\r\n'
+                table_string += '\t\t</tr>\r\n'
+        
+        table_string += '\t</tbody>\r\n'
+        table_string += '</table>\r\n'
+        return table_string
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
