@@ -48,6 +48,7 @@ class Match(models.Model):
     table_number = models.PositiveSmallIntegerField()
     match_completed = models.BooleanField()
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
+    is_bye = models.BooleanField(default=False)
     
 class Seating(PolymorphicModel):
     seat_number = models.PositiveSmallIntegerField()

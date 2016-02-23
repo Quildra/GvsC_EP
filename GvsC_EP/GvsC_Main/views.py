@@ -49,11 +49,17 @@ def tournaments_next_round(request, tournament_id):
         
         plugin = tournament.game_plugin.get_plugin()
         pairings = plugin.PairRound(tournament)
-        
+        print(pairings)
+        print(len(pairings))
+        print(num_matches)
         for i in range(num_matches):
             new_match = Match.objects.create(round_number=next_round_number, tournament=tournament, table_number=i, match_completed=False)
             SinglePlayerSeating.objects.create(seat_number=0, place=0, score=0, match=new_match, player=pairings[i][0]['player'], table_number=i)
             SinglePlayerSeating.objects.create(seat_number=1, place=0, score=0, match=new_match, player=pairings[i][1]['player'], table_number=i)
+            
+        if needs_a_bye == True:
+            new_match = Match.objects.create(round_number=next_round_number, tournament=tournament, table_number=num_matches, match_completed=True, is_bye=True)
+            SinglePlayerSeating.objects.create(seat_number=0, place=0, score=0, match=new_match, player=pairings[num_matches][0]['player'], table_number=num_matches)
             
 
         html = render_to_string('tournaments/round_table.html', {'tournament': tournament, 'num_rounds': next_round_number, "needs_a_bye": needs_a_bye, "num_matches":num_matches})

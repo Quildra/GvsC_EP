@@ -5,6 +5,16 @@
 	{% for i in num_rounds|get_one_based_range reversed %}
         <div class="ui segment">
             <h3> Round {{i}} </h3>
+            {% for match in tournament|get_matches_in_round:i %}
+                {% if match.is_bye %}
+                    <div class="ui info message">
+                        <div class="header">
+                            Bye
+                        </div>
+                        {{match.seating_set.first.player.name}} has a bye this round.
+                    </div>
+                {% endif %}
+            {% endfor %}
             <table class="ui celled padded table">
                 <thead>
                     <tr>
@@ -15,11 +25,13 @@
                 </thead>
                 <tbody>
                     {% for match in tournament|get_matches_in_round:i %}
-                        <tr>
-                            <td>{{match.seating_set.first.player.name}}</td>
-                            <td>Vs.</td>
-                            <td>{{match.seating_set.last.player.name}}</td>
-                        </tr>
+                        {% if not match.is_bye %}
+                            <tr>
+                                <td>{{match.seating_set.first.player.name}}</td>
+                                <td>Vs.</td>
+                                <td>{{match.seating_set.last.player.name}}</td>
+                            </tr>
+                        {% endif %}
                     {% endfor %}
                 </tbody>
             </table>
