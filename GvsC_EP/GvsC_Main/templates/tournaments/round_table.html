@@ -16,28 +16,6 @@
                 {% endif %}
             {% endfor %}
             {% render_pairings_table tournament i %}
-            <!--
-            <table class="ui celled padded table">
-                <thead>
-                    <tr>
-                        <th> Player 1 </th>
-                        <th> Vs. </th>
-                        <th> Player 2 </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for match in tournament|get_matches_in_round:i %}
-                        {% if not match.is_bye %}
-                            <tr>
-                                <td>{{match.seating_set.first.player.name}}</td>
-                                <td>Vs.</td>
-                                <td>{{match.seating_set.last.player.name}}</td>
-                            </tr>
-                        {% endif %}
-                    {% endfor %}
-                </tbody>
-            </table>
-            -->
         </div>
 	{% endfor %}
 {% endif %}

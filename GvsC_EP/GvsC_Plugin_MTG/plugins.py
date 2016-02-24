@@ -99,11 +99,29 @@ class MTG_GamePlugin(GamePluginPoint):
                 table_string += '\t\t\t<td>' + str(2) + '</td>\r\n'
                 table_string += '\t\t\t<td>' + match.seating_set.last().player.name + '</td>\r\n'
                 table_string += '\t\t\t<td>' + str(1) + '</td>\r\n'
-                table_string += '\t\t\t<td>' + 'Edit' + '</td>\r\n'
+                table_string += '\t\t\t<td><button class="ui button" onclick="$(\'#' + str(match.pk) +'\').modal(\'show\');">Edit</button></td>\r\n'
                 table_string += '\t\t</tr>\r\n'
         
         table_string += '\t</tbody>\r\n'
         table_string += '</table>\r\n'
+
+        if single_player_tournament:
+            for match in pTournament.match_set.filter(round_number__iexact=pRoundNumber):
+                if match.is_bye == True:
+                    continue
+                table_string += '<div class="ui modal" id="' + str(match.pk) + '">\r\n'
+                table_string += '\t<i class="close icon"></i>\r\n'
+                table_string += '\t<div class="header">\r\n'
+                table_string += '\t\t' + match.seating_set.first().player.name + '  Vs.  ' + match.seating_set.last().player.name + '\r\n'
+                table_string += '\t</div>\r\n'
+                table_string += '\t<div>\r\n'
+
+                table_string += '\t</div>\r\n'
+                table_string += '\t<div class="actions">\r\n'
+                table_string += '\t\t<div class="ui cancel button">Cancel</div>\r\n'
+                table_string += '\t\t<div class="ui ok button">OK</div>\r\n'
+                table_string += '\t</div>\r\n'
+                table_string += '</div>\r\n'
         return table_string
         
         
