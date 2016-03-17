@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from django.template.loader import render_to_string
 from random import randint
 from itertools import tee, zip_longest
 
@@ -38,28 +39,9 @@ class MTG_GamePlugin(GamePluginPoint):
                 
         # Sort the players
         players.sort(key = lambda player: (player['match_points'], player['opp_match_win_percent'], player['game_win_percent'],player['opp_game_win_percent'], player['byes'], player['name']), reverse=True)
-        table_string = ''
-        table_string += '<table class="ui celled padded table">\r\n'
-        table_string += '\t<thead>\r\n'
-        table_string += '\t\t<tr>\r\n'
-        table_string += '\t\t\t<th>Place</th>\r\n'
-        table_string += '\t\t\t<th>Name</th>\r\n'
-        table_string += '\t\t\t<th>Match Points</th>\r\n'
-        table_string += '\t\t</tr>\r\n'
-        table_string += '\t</thead>\r\n'
-        table_string += '\t<tbody>\r\n'
-        if single_player_tournament:
-            # Report the players in sorted order.
-            for i, player in enumerate(players):
-                table_string += '\t\t<tr>\r\n'
-                table_string += '\t\t\t<td>' + str(i+1) + '</td>\r\n'
-                table_string += '\t\t\t<td>' + player['name'] + '</td>\r\n'
-                table_string += '\t\t\t<td>' + str(player['match_points']) + '</td>\r\n'
-                table_string += '\t\t</tr>\r\n'
 
-        table_string += '\t</tbody>\r\n'
-        table_string += '</table>\r\n'
-        return table_string
+        html = render_to_string('MTG_Standings_Table.html', {'players': players})
+        return html
         
     def PairRound(self, pTournament):
         single_player_tournament = hasattr(pTournament, 'players')
@@ -99,29 +81,11 @@ class MTG_GamePlugin(GamePluginPoint):
                 table_string += '\t\t\t<td>' + str(2) + '</td>\r\n'
                 table_string += '\t\t\t<td>' + match.seating_set.last().player.name + '</td>\r\n'
                 table_string += '\t\t\t<td>' + str(1) + '</td>\r\n'
-                table_string += '\t\t\t<td><button class="ui button" onclick="$(\'#' + str(match.pk) +'\').modal(\'show\');">Edit</button></td>\r\n'
+                table_string += '\t\t\t<td>' + 'Edit' + '</td>\r\n'
                 table_string += '\t\t</tr>\r\n'
         
         table_string += '\t</tbody>\r\n'
         table_string += '</table>\r\n'
-
-        if single_player_tournament:
-            for match in pTournament.match_set.filter(round_number__iexact=pRoundNumber):
-                if match.is_bye == True:
-                    continue
-                table_string += '<div class="ui modal" id="' + str(match.pk) + '">\r\n'
-                table_string += '\t<i class="close icon"></i>\r\n'
-                table_string += '\t<div class="header">\r\n'
-                table_string += '\t\t' + match.seating_set.first().player.name + '  Vs.  ' + match.seating_set.last().player.name + '\r\n'
-                table_string += '\t</div>\r\n'
-                table_string += '\t<div>\r\n'
-
-                table_string += '\t</div>\r\n'
-                table_string += '\t<div class="actions">\r\n'
-                table_string += '\t\t<div class="ui cancel button">Cancel</div>\r\n'
-                table_string += '\t\t<div class="ui ok button">OK</div>\r\n'
-                table_string += '\t</div>\r\n'
-                table_string += '</div>\r\n'
         return table_string
         
         

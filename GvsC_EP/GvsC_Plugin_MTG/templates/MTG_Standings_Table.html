@@ -1,0 +1,18 @@
+<table class="ui celled padded table">
+	<thead>
+		<tr>
+			<th>Place</th>
+			<th>Name</th>
+			<th>Match Points</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for player in players %}
+			<tr>
+				<td>{{forloop.counter}}</td>
+				<td>{{player.name}}</td>
+				<td>{{player.match_points}}</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
