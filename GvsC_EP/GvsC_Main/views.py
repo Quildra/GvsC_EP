@@ -1,6 +1,6 @@
 from django.http import Http404
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.utils.safestring import mark_safe
 from django.template.loader import render_to_string
 from django.db.models import Max
@@ -32,10 +32,10 @@ def tournaments_index(request):
     context = {'upcoming_tournaments': upcoming_tournaments}
     return render(request, 'tournaments/index.html', context)
     
-def tournaments_details(request, tournament_id):
+def tournaments_details(request, tournament_id, pairings_active=False):
     tournament = get_object_or_404(Tournament, pk = tournament_id)
     num_rounds = tournament.match_set.all().aggregate(Max('round_number'))
-    return render(request, 'tournaments/details.html', {'tournament': tournament, 'num_rounds': num_rounds['round_number__max'] })
+    return render(request, 'tournaments/details.html', {'tournament': tournament, 'num_rounds': num_rounds['round_number__max'], 'request':request, 'pairings_active':pairings_active})
     
 def tournaments_next_round(request, tournament_id):
     if request.is_ajax():
@@ -54,9 +54,7 @@ def tournaments_next_round(request, tournament_id):
         
         plugin = tournament.game_plugin.get_plugin()
         pairings = plugin.PairRound(tournament)
-        print(pairings)
-        print(len(pairings))
-        print(num_matches)
+        
         for i in range(num_matches):
             new_match = Match.objects.create(round_number=next_round_number, tournament=tournament, table_number=i, match_completed=False)
             SinglePlayerSeating.objects.create(seat_number=0, place=0, score=0, match=new_match, player=pairings[i][0]['player'], table_number=i)
@@ -69,3 +67,8 @@ def tournaments_next_round(request, tournament_id):
 
         html = render_to_string('tournaments/round_table.html', {'tournament': tournament, 'num_rounds': next_round_number, "needs_a_bye": needs_a_bye, "num_matches":num_matches})
         return HttpResponse(json.dumps({'html': mark_safe(html)}), content_type="application/json")
+        
+def tournaments_report_match_result(request, tournament_id):
+    print(request.POST)
+    print("Hello")
+    return redirect('tournament_details', tournament_id=tournament_id, pairings_active=True)

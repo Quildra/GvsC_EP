@@ -9,9 +9,9 @@ def render_standings_table( tournament ):
     return mark_safe(plugin.GenerateStandingsTable( tournament ))
     
 @register.simple_tag
-def render_pairings_table( tournament, round_number ):
+def render_pairings_table( tournament, round_number, request ):
     plugin = tournament.game_plugin.get_plugin()
-    return mark_safe(plugin.GeneratePairingsTable( tournament, round_number ))
+    return mark_safe(plugin.GeneratePairingsTable( tournament, round_number, request ))
     
 @register.filter    
 def get_matches_in_round(tournament, round):    
