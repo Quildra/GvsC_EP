@@ -81,3 +81,11 @@ class MTG_GamePlugin(GamePluginPoint):
         
         html = render_to_string('MTG_Pairings_Table.html', {'tournament': pTournament, 'matches':pTournament.match_set.filter(round_number__iexact=pRoundNumber)}, request=pRequest)
         return html
+        
+    def DetermineWinner(self, pSeat0, pSeat1):
+        # Result Options:
+        # 0 - No Result, 1 - Win, 2 - Loss, 3 - Draw
+        if pSeat0.result_option == "1":
+            pSeat0.winner = True
+        elif pSeat1.result_option == "1":
+            pSeat1.winner = True

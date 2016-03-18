@@ -103,8 +103,15 @@ def tournaments_report_match_result(request, tournament_id):
     seat_1.result_option = seat_1_result
     seat_1.score = seat_1_score
 
+    tournament = get_object_or_404(Tournament, pk = tournament_id)
+    plugin = tournament.game_plugin.get_plugin()
+    plugin.DetermineWinner(seat_0, seat_1)
+
     seat_0.save()
     seat_1.save()
+    
+    match.match_completed = True
+    match.save()
     
     redirect_url = reverse('tournament_details', kwargs={'tournament_id': tournament_id})
     extra_params = urllib.parse.urlencode({'pa':True})

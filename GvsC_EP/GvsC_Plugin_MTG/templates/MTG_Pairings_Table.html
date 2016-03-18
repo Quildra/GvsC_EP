@@ -2,10 +2,10 @@
     <thead>
         <tr>
             <th>Player 1</th>
-            <th>Player 1 Games Won</th>
+            <th class="one wide">Vs.</th>
             <th>Player 2</th>
-            <th>Player 2 Games Won</th>
-            <th>Report Result</th>
+            <th class="three wide">Result</th>
+            <th class="one wide"></th>
         </tr>
     </thead>
     <tbody>
@@ -13,10 +13,22 @@
         {% if match.is_bye == False %}
            <tr>
                 <td>{{match.seating_set.first.player.name}}</td>
-                <td>2</td>
+                <td>Vs.</td>
                 <td>{{match.seating_set.last.player.name}}</td>
-                <td>1</td>
-                <td><button class="ui button" onclick="$('#{{match.pk}}').modal('show');">Edit</button></td>
+                <td>
+                    {% if match.match_completed == True %}
+                        {% if match.seating_set.first.winner == True %}
+                            {{match.seating_set.first.player.name}} Won.
+                        {% elif match.seating_set.last.winner == True %}
+                            {{match.seating_set.last.player.name}} Won.
+                        {% else %}
+                            Match Drawn.
+                        {% endif %}
+                    {% else %}
+                        No Result Yet.
+                    {% endif %}
+                </td>
+                <td class="center aligned"><button class="ui button" onclick="$('#{{match.pk}}').modal('show');">Edit</button></td>
             </tr>
         {% endif %}
     {% endfor %}
