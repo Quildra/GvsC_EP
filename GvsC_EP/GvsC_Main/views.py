@@ -62,20 +62,42 @@ def tournaments_next_round(request, tournament_id):
         
         for i in range(num_matches):
             new_match = Match.objects.create(round_number=next_round_number, tournament=tournament, table_number=i, match_completed=False)
-            SinglePlayerSeating.objects.create(seat_number=0, place=0, score=0, match=new_match, player=pairings[i][0]['player'], table_number=i)
-            SinglePlayerSeating.objects.create(seat_number=1, place=0, score=0, match=new_match, player=pairings[i][1]['player'], table_number=i)
+            SinglePlayerSeating.objects.create(result_option=0, score=0, match=new_match, player=pairings[i][0]['player'])
+            SinglePlayerSeating.objects.create(result_option=0, score=0, match=new_match, player=pairings[i][1]['player'])
             
         if needs_a_bye == True:
             new_match = Match.objects.create(round_number=next_round_number, tournament=tournament, table_number=num_matches, match_completed=True, is_bye=True)
-            SinglePlayerSeating.objects.create(seat_number=0, place=0, score=0, match=new_match, player=pairings[num_matches][0]['player'], table_number=num_matches)
-            
+            SinglePlayerSeating.objects.create(result_option=0, score=0, match=new_match, player=pairings[num_matches][0]['player'])            
 
-        html = render_to_string('tournaments/round_table.html', {'tournament': tournament, 'num_rounds': next_round_number, "needs_a_bye": needs_a_bye, "num_matches":num_matches})
+        html = render_to_string('tournaments/round_table.html', {'tournament': tournament, 'num_rounds': next_round_number, "needs_a_bye": needs_a_bye, "num_matches":num_matches, 'request':request})
+        print(html)
         return HttpResponse(json.dumps({'html': mark_safe(html)}), content_type="application/json")
+    print("Not AJAX")
         
 def tournaments_report_match_result(request, tournament_id):
-    print(request.POST)
-    print(request.body)
+    # Match PK
+    # Seat 0 ID
+    # Seat 0 Result
+    # Seat 0 Score
+    # Seat 1 ID
+    # Seat 1 Result
+    # Seat 1 Score
+    data = request.POST
+    match_id = data.get('match_id', 0)
+    match = get_object_or_404(Match, pk = match_id)
+    print(match)
+    
+    seat_0_id = data.get('seat_0_ID', 0)
+    seat_0_result = data.get('seat_0_result', 0)
+    seat_0_score = data.get('seat_0_score', 0)
+    
+    seat_1_id = data.get('seat_1_ID', 0)
+    seat_1_result = data.get('seat_1_result', 0)
+    seat_1_score = data.get('seat_1_score', 0)
+    
+    seat_0 = match.seating_set.filter(id=seat_0_id)
+    print(seat_0)
+    
     redirect_url = reverse('tournament_details', kwargs={'tournament_id': tournament_id})
     extra_params = urllib.parse.urlencode({'pa':True})
     full_redirect_url = '%s?%s' % (redirect_url, extra_params)

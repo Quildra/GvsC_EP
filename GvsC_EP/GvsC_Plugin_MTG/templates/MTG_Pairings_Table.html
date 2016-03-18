@@ -33,12 +33,20 @@
             <div>
                 <form method="post" id="match_{{match.pk}}_form" action="/tournaments/{{tournament.pk}}/submit_result/">
                     {% csrf_token %}
+					<input type="hidden" name="match_id" value={{match.pk}}>
+					<input type="hidden" name="seat_0_ID" value={{match.seating_set.first.pk}}>
+					<input type="hidden" name="seat_1_ID" value={{match.seating_set.last.pk}}>
                     <div class="field">
-                        <select>
-                            <option value="">Gender</option>
-                            <option value="1">Male</option>
-                            <option value="0">Female</option>
-                        </select>
+						<label>Gender</label>
+                        <div class="ui fluid search selection dropdown">
+							<input type="hidden" name="gender">
+							<i class="dropdown icon"></i>
+							<div class="default text">Gender</div>
+							<div class="menu">
+								<div class="item" data-value="1">Male</div>
+								<div class="item" data-value="0">Female</div>
+							</div>
+                        </div>
                     </div>
                 </form>
             </div>
