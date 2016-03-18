@@ -1,10 +1,12 @@
 from django.http import Http404
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render, redirect
+from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
 from django.template.loader import render_to_string
 from django.db.models import Max
 import json
+import urllib.parse
 
 from .models import Event, Tournament, Match, SinglePlayerSeating
 
@@ -32,9 +34,12 @@ def tournaments_index(request):
     context = {'upcoming_tournaments': upcoming_tournaments}
     return render(request, 'tournaments/index.html', context)
     
-def tournaments_details(request, tournament_id, pairings_active=False):
+def tournaments_details(request, tournament_id):
     tournament = get_object_or_404(Tournament, pk = tournament_id)
     num_rounds = tournament.match_set.all().aggregate(Max('round_number'))
+    data = request.GET
+    pairings_active = data.get('pa', False)
+    
     return render(request, 'tournaments/details.html', {'tournament': tournament, 'num_rounds': num_rounds['round_number__max'], 'request':request, 'pairings_active':pairings_active})
     
 def tournaments_next_round(request, tournament_id):
@@ -70,5 +75,9 @@ def tournaments_next_round(request, tournament_id):
         
 def tournaments_report_match_result(request, tournament_id):
     print(request.POST)
-    print("Hello")
-    return redirect('tournament_details', tournament_id=tournament_id, pairings_active=True)
+    print(request.body)
+    redirect_url = reverse('tournament_details', kwargs={'tournament_id': tournament_id})
+    extra_params = urllib.parse.urlencode({'pa':True})
+    full_redirect_url = '%s?%s' % (redirect_url, extra_params)
+    print(full_redirect_url)
+    return HttpResponseRedirect( full_redirect_url )
