@@ -54,6 +54,7 @@ class Seating(PolymorphicModel):
     result_option = models.PositiveSmallIntegerField() #Win, Loss, Draw etc up to the plugin to decide meaning.
     score = models.PositiveSmallIntegerField() #Additional info; Games won for MTG, Points scored for CLix etc.
     match = models.ForeignKey(Match, on_delete=models.CASCADE)
+    winner = models.BooleanField(default=False)
     
 class SinglePlayerSeating(Seating):
     player = models.ForeignKey(Player, blank=True)
