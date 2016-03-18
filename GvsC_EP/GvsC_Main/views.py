@@ -85,21 +85,28 @@ def tournaments_report_match_result(request, tournament_id):
     data = request.POST
     match_id = data.get('match_id', 0)
     match = get_object_or_404(Match, pk = match_id)
-    print(match)
     
-    seat_0_id = data.get('seat_0_ID', 0)
+    seat_0_id = data.get('seat_0_id', 0)
     seat_0_result = data.get('seat_0_result', 0)
     seat_0_score = data.get('seat_0_score', 0)
     
-    seat_1_id = data.get('seat_1_ID', 0)
+    seat_1_id = data.get('seat_1_id', 0)
     seat_1_result = data.get('seat_1_result', 0)
     seat_1_score = data.get('seat_1_score', 0)
     
-    seat_0 = match.seating_set.filter(id=seat_0_id)
-    print(seat_0)
+    seat_0 = match.seating_set.get(pk=seat_0_id)    
+    seat_1 = match.seating_set.get(pk=seat_1_id)
+    
+    seat_0.result_option = seat_0_result
+    seat_0.score = seat_0_score
+    
+    seat_1.result_option = seat_1_result
+    seat_1.score = seat_1_score
+
+    seat_0.save()
+    seat_1.save()
     
     redirect_url = reverse('tournament_details', kwargs={'tournament_id': tournament_id})
     extra_params = urllib.parse.urlencode({'pa':True})
     full_redirect_url = '%s?%s' % (redirect_url, extra_params)
-    print(full_redirect_url)
     return HttpResponseRedirect( full_redirect_url )
