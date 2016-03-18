@@ -31,21 +31,61 @@
                 {{match.seating_set.first.player.name}}  Vs.  {{match.seating_set.last.player.name}}
             </div>
             <div>
-                <form method="post" id="match_{{match.pk}}_form" action="/tournaments/{{tournament.pk}}/submit_result/">
+                <form class="ui form" method="post" id="match_{{match.pk}}_form" action="/tournaments/{{tournament.pk}}/submit_result/">
                     {% csrf_token %}
 					<input type="hidden" name="match_id" value={{match.pk}}>
-					<input type="hidden" name="seat_0_ID" value={{match.seating_set.first.pk}}>
-					<input type="hidden" name="seat_1_ID" value={{match.seating_set.last.pk}}>
-                    <div class="field">
-						<label>Gender</label>
-                        <div class="ui fluid search selection dropdown">
-							<input type="hidden" name="gender">
-							<i class="dropdown icon"></i>
-							<div class="default text">Gender</div>
-							<div class="menu">
-								<div class="item" data-value="1">Male</div>
-								<div class="item" data-value="0">Female</div>
-							</div>
+					<input type="hidden" name="seat_0_id" value={{match.seating_set.first.pk}}>
+					<input type="hidden" name="seat_1_id" value={{match.seating_set.last.pk}}>
+                    <div class="ui segment">
+                        <div class="ui two column grid">
+                            <div class="column">
+                                <div class="row">
+                                    <h4 class="ui dividing header">{{match.seating_set.first.player.name}}</h4>
+                                    <div class="fields">
+                                        <div class="inline field">
+                                            <label>Result:</label>
+                                            <div class="ui selection dropdown">
+                                                <input type="hidden" name="seat_0_result" value={{match.seating_set.first.result_option}}>
+                                                <div class="default text">Result</div>
+                                                <i class="dropdown icon"></i>
+                                                <div class="menu">
+                                                    <div class="item" data-value="1">Win</div>
+                                                    <div class="item" data-value="2">Loss</div>
+                                                    <div class="item" data-value="3">Draw</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="inline field">
+                                            <label>Score:</label>
+                                            <input type="number" name="seat_0_score" min="0" value={{match.seating_set.first.score}}>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div class="row">
+                                    <h4 class="ui dividing header">{{match.seating_set.last.player.name}}</h4>
+                                    <div class="fields">
+                                        <div class="inline field">
+                                            <label>Result:</label>
+                                            <div class="ui selection dropdown">
+                                                <input type="hidden" name="seat_1_result" value={{match.seating_set.last.result_option}}>
+                                                <div class="default text">Result</div>
+                                                <i class="dropdown icon"></i>
+                                                <div class="menu">
+                                                    <div class="item" data-value="1">Win</div>
+                                                    <div class="item" data-value="2">Loss</div>
+                                                    <div class="item" data-value="3">Draw</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="inline field">
+                                            <label>Score:</label>
+                                            <input type="number" name="seat_1_score" min="0" value={{match.seating_set.last.score}}>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </form>
