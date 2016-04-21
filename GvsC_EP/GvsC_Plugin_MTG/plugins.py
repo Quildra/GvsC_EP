@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from django.template.loader import render_to_string
 from random import randint
 from itertools import tee, zip_longest
 
@@ -75,82 +76,16 @@ class MTG_GamePlugin(GamePluginPoint):
         pairings = list(grouper(players, 2))
         return pairings
         
-    def GeneratePairingsTable(self, pTournament, pRoundNumber):
+    def GeneratePairingsTable(self, pTournament, pRoundNumber, pRequest):
         single_player_tournament = hasattr(pTournament, 'players')
-
-        table_string = ''
-        table_string += '<table class="ui celled padded table">\r\n'
-        table_string += '\t<thead>\r\n'
-        table_string += '\t\t<tr>\r\n'
-        table_string += '\t\t\t<th>Player 1</th>\r\n'
-        table_string += '\t\t\t<th>Player 1 Games Won</th>\r\n'
-        table_string += '\t\t\t<th>Player 2</th>\r\n'
-        table_string += '\t\t\t<th>Player 2 Games Won</th>\r\n'
-        table_string += '\t\t\t<th>Report Result</th>\r\n'
-        table_string += '\t\t</tr>\r\n'
-        table_string += '\t</thead>\r\n'
-        table_string += '\t<tbody>\r\n'
-        if single_player_tournament:
-            for match in pTournament.match_set.filter(round_number__iexact=pRoundNumber):
-                if match.is_bye == True:
-                    continue
-                table_string += '\t\t<tr>\r\n'
-                table_string += '\t\t\t<td>' + match.seating_set.first().player.name + '</td>\r\n'
-                table_string += '\t\t\t<td>' + str(2) + '</td>\r\n'
-                table_string += '\t\t\t<td>' + match.seating_set.last().player.name + '</td>\r\n'
-                table_string += '\t\t\t<td>' + str(1) + '</td>\r\n'
-                table_string += '\t\t\t<td><button class="ui button" onclick="$(\'#' + str(match.pk) +'\').modal(\'show\');">Edit</button></td>\r\n'
-                table_string += '\t\t</tr>\r\n'
         
-        table_string += '\t</tbody>\r\n'
-        table_string += '</table>\r\n'
-
-        if single_player_tournament:
-            for match in pTournament.match_set.filter(round_number__iexact=pRoundNumber):
-                if match.is_bye == True:
-                    continue
-                table_string += '<div class="ui modal" id="' + str(match.pk) + '">\r\n'
-                table_string += '\t<i class="close icon"></i>\r\n'
-                table_string += '\t<div class="header">\r\n'
-                table_string += '\t\t' + match.seating_set.first().player.name + '  Vs.  ' + match.seating_set.last().player.name + '\r\n'
-                table_string += '\t</div>\r\n'
-                table_string += '\t<div>\r\n'
-
-                table_string += '\t</div>\r\n'
-                table_string += '\t<div class="actions">\r\n'
-                table_string += '\t\t<div class="ui cancel button">Cancel</div>\r\n'
-                table_string += '\t\t<div class="ui ok button">OK</div>\r\n'
-                table_string += '\t</div>\r\n'
-                table_string += '</div>\r\n'
-        return table_string
+        html = render_to_string('MTG_Pairings_Table.html', {'tournament': pTournament, 'matches':pTournament.match_set.filter(round_number__iexact=pRoundNumber)}, request=pRequest)
+        return html
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+    def DetermineWinner(self, pSeat0, pSeat1):
+        # Result Options:
+        # 0 - No Result, 1 - Win, 2 - Loss, 3 - Draw
+        if pSeat0.result_option == "1":
+            pSeat0.winner = True
+        elif pSeat1.result_option == "1":
+            pSeat1.winner = True

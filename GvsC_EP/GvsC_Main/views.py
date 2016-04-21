@@ -1,10 +1,12 @@
 from django.http import Http404
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render, redirect
+from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
 from django.template.loader import render_to_string
 from django.db.models import Max
 import json
+import urllib.parse
 
 from .models import Event, Tournament, Match, SinglePlayerSeating
 
@@ -35,7 +37,10 @@ def tournaments_index(request):
 def tournaments_details(request, tournament_id):
     tournament = get_object_or_404(Tournament, pk = tournament_id)
     num_rounds = tournament.match_set.all().aggregate(Max('round_number'))
-    return render(request, 'tournaments/details.html', {'tournament': tournament, 'num_rounds': num_rounds['round_number__max'] })
+    data = request.GET
+    pairings_active = data.get('pa', False)
+    
+    return render(request, 'tournaments/details.html', {'tournament': tournament, 'num_rounds': num_rounds['round_number__max'], 'request':request, 'pairings_active':pairings_active})
     
 def tournaments_next_round(request, tournament_id):
     if request.is_ajax():
@@ -54,18 +59,61 @@ def tournaments_next_round(request, tournament_id):
         
         plugin = tournament.game_plugin.get_plugin()
         pairings = plugin.PairRound(tournament)
-        print(pairings)
-        print(len(pairings))
-        print(num_matches)
+        
         for i in range(num_matches):
             new_match = Match.objects.create(round_number=next_round_number, tournament=tournament, table_number=i, match_completed=False)
-            SinglePlayerSeating.objects.create(seat_number=0, place=0, score=0, match=new_match, player=pairings[i][0]['player'], table_number=i)
-            SinglePlayerSeating.objects.create(seat_number=1, place=0, score=0, match=new_match, player=pairings[i][1]['player'], table_number=i)
+            SinglePlayerSeating.objects.create(result_option=0, score=0, match=new_match, player=pairings[i][0]['player'])
+            SinglePlayerSeating.objects.create(result_option=0, score=0, match=new_match, player=pairings[i][1]['player'])
             
         if needs_a_bye == True:
             new_match = Match.objects.create(round_number=next_round_number, tournament=tournament, table_number=num_matches, match_completed=True, is_bye=True)
-            SinglePlayerSeating.objects.create(seat_number=0, place=0, score=0, match=new_match, player=pairings[num_matches][0]['player'], table_number=num_matches)
-            
+            SinglePlayerSeating.objects.create(result_option=0, score=0, match=new_match, player=pairings[num_matches][0]['player'])            
 
-        html = render_to_string('tournaments/round_table.html', {'tournament': tournament, 'num_rounds': next_round_number, "needs_a_bye": needs_a_bye, "num_matches":num_matches})
+        html = render_to_string('tournaments/round_table.html', {'tournament': tournament, 'num_rounds': next_round_number, "needs_a_bye": needs_a_bye, "num_matches":num_matches, 'request':request})
+        print(html)
         return HttpResponse(json.dumps({'html': mark_safe(html)}), content_type="application/json")
+    print("Not AJAX")
+        
+def tournaments_report_match_result(request, tournament_id):
+    # Match PK
+    # Seat 0 ID
+    # Seat 0 Result
+    # Seat 0 Score
+    # Seat 1 ID
+    # Seat 1 Result
+    # Seat 1 Score
+    data = request.POST
+    match_id = data.get('match_id', 0)
+    match = get_object_or_404(Match, pk = match_id)
+    
+    seat_0_id = data.get('seat_0_id', 0)
+    seat_0_result = data.get('seat_0_result', 0)
+    seat_0_score = data.get('seat_0_score', 0)
+    
+    seat_1_id = data.get('seat_1_id', 0)
+    seat_1_result = data.get('seat_1_result', 0)
+    seat_1_score = data.get('seat_1_score', 0)
+    
+    seat_0 = match.seating_set.get(pk=seat_0_id)    
+    seat_1 = match.seating_set.get(pk=seat_1_id)
+    
+    seat_0.result_option = seat_0_result
+    seat_0.score = seat_0_score
+    
+    seat_1.result_option = seat_1_result
+    seat_1.score = seat_1_score
+
+    tournament = get_object_or_404(Tournament, pk = tournament_id)
+    plugin = tournament.game_plugin.get_plugin()
+    plugin.DetermineWinner(seat_0, seat_1)
+
+    seat_0.save()
+    seat_1.save()
+    
+    match.match_completed = True
+    match.save()
+    
+    redirect_url = reverse('tournament_details', kwargs={'tournament_id': tournament_id})
+    extra_params = urllib.parse.urlencode({'pa':True})
+    full_redirect_url = '%s?%s' % (redirect_url, extra_params)
+    return HttpResponseRedirect( full_redirect_url )
