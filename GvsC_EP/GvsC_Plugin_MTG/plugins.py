@@ -10,22 +10,39 @@ def grouper(iterable, n, fillvalue=None):
     return zip_longest(*args, fillvalue=fillvalue)
 
 from GvsC_EP.plugins import GamePluginPoint
+from GvsC_Main.models import Seating
 
 class MTG_GamePlugin(GamePluginPoint):
     name = 'MTG'
     title = 'Magic: The Gathering'
     
-    def _CalcualtePlayerStats(self, pPlayer):
+    def _CalcualtePlayerStats(self, pPlayer, pTournament):
         player = {}
         
         player['name'] = pPlayer.name
-        player['match_points'] = randint(0,10)
+        player['wins'] = 0
+        player['draws'] = 0
+        player['losses'] = 0
+        player['byes'] = 0
+        player['match_points'] = 0
         player['opp_match_win_percent'] = 0
         player['game_win_percent'] = 0
         player['opp_game_win_percent'] = 0
-        player['byes'] = 0
         player['player'] = pPlayer
         
+        for seating in Seating.objects.filter(singleplayerseating__player=pPlayer,match__tournament=pTournament):
+            if seating.result_option == 1:
+                player['wins'] += 1
+            elif seating.result_option == 2:
+                player['losses'] += 1
+            elif seating.result_option == 3:
+                player['draws'] += 1
+                
+            if seating.match.is_bye == True:
+                player['byes'] += 1
+                player['wins'] += 1
+                
+        print(player)
         return player
 
     def GenerateStandingsTable(self, pTournament):
@@ -35,10 +52,10 @@ class MTG_GamePlugin(GamePluginPoint):
             for i, player in enumerate(pTournament.players.all()):
                 # Calculate the points and tie breakers for each player
                 # store them locally to be sorted.
-                players.append(self._CalcualtePlayerStats(player))
+                players.append(self._CalcualtePlayerStats(player, pTournament))
                 
         # Sort the players
-        players.sort(key = lambda player: (player['match_points'], player['opp_match_win_percent'], player['game_win_percent'],player['opp_game_win_percent'], player['byes'], player['name']), reverse=True)
+        players.sort(key = lambda player: (player['wins'], player['draws'], player['losses'],player['match_points'], player['opp_match_win_percent'], player['game_win_percent'], player['opp_game_win_percent'], player['byes']), reverse=True)
         table_string = ''
         table_string += '<table class="ui celled padded table">\r\n'
         table_string += '\t<thead>\r\n'
@@ -69,10 +86,10 @@ class MTG_GamePlugin(GamePluginPoint):
             for i, player in enumerate(pTournament.players.all()):
                 # Calculate the points and tie breakers for each player
                 # store them locally to be sorted.
-                players.append(self._CalcualtePlayerStats(player))
+                players.append(self._CalcualtePlayerStats(player, pTournament))
                 
         # Sort the players
-        players.sort(key = lambda player: (player['match_points'], player['opp_match_win_percent'], player['game_win_percent'],player['opp_game_win_percent'], player['byes'], player['name']), reverse=True)
+        players.sort(key = lambda player: (player['wins'], player['draws'], player['losses']), reverse=True)
         pairings = list(grouper(players, 2))
         return pairings
         
