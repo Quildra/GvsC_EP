@@ -17,12 +17,36 @@ class MTG_GamePlugin(GamePluginPoint):
     title = 'Magic: The Gathering'
     player_stats_cache = {}
     
+    def _CalculatePlayerMatchWinPercentage(self, pPlayer, pTournament):
+        # Byes are not included in your match win or game percentages.
+        matches_played = 0
+        real_wins = 0
+        games_played = 0
+        real_games = 0
+        
+        for seating in Seating.objects.filter(singleplayerseating__player=pPlayer,match__tournament=pTournament):                
+            if seating.result_option == 1:
+                real_wins += 1                
+            matches_played +=1
+        
+        return 100 * float(real_wins)/float(matches_played)
+        
+    def _CalculatePlayerGameWinPercentage(self, pPlayer, pTournament):
+        # Byes are not included in your match win or game percentages.
+        matches_played = 0
+        real_wins = 0
+        games_played = 0
+        real_games = 0
+        
+        for seating in Seating.objects.filter(singleplayerseating__player=pPlayer,match__tournament=pTournament):                
+            if seating.result_option == 1:
+                real_wins += 1                
+            matches_played +=1
+        
+        return 100 * float(real_wins)/float(matches_played)
+    
     def _CalcualtePlayerStats(self, pPlayer, pTournament):
         
-        cached_version = player_stats_cache.get(pPlayer.name)
-        if cached_version != None:
-            return cached_version
-            
         player = {}
         
         player['name'] = pPlayer.name
@@ -41,9 +65,14 @@ class MTG_GamePlugin(GamePluginPoint):
         matches_played = 0
         real_wins = 0
         games_played = 0
-        real_games = 
+        real_games = 0
+        
+        opponents = []
         
         for seating in Seating.objects.filter(singleplayerseating__player=pPlayer,match__tournament=pTournament):
+            for opponent_seating in Seating.objects.filter(match=seating.match).exclude(singleplayerseating__player=pPlayer):
+                opponents.append(opponent_seating.player)
+                
             if seating.result_option == 1:
                 player['wins'] += 1
                 real_wins += 1
@@ -60,9 +89,14 @@ class MTG_GamePlugin(GamePluginPoint):
         
         player['match_win_percent'] = 100 * float(real_wins)/float(matches_played)
         
-        player_stats_cache[player['name']] = player
-        
-        
+        opponents_match_win = []
+        opponents_game_win = []
+        for opponent in opponents:
+            opponents_match_win.append(self._CalculatePlayerMatchWinPercentage(opponent, pTournament))
+            opponents_game_win.append(self._CalculatePlayerGameWinPercentage(opponent, pTournament))
+            
+        player['opp_match_win_percent'] = sum(opponents_match_win)/float(len(opponents_match_win))
+        player['opp_game_win_percent'] = sum(opponents_game_win)/float(len(opponents_game_win))
                 
         print(player)
         return player
