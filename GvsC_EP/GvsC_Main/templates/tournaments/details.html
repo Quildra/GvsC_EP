@@ -90,6 +90,13 @@
             {% if request.user.is_staff == True %}
                 <div class="ui segment">
                     <div id="next_round" class="ui primary button" data-tournament_id="{{tournament.pk}}">Create Next Round</div>
+                    <div class="ui hidden negative message">
+                        <i class="close icon"></i>
+                        <div class="header">
+                            Error
+                        </div>
+                        <p id="error_message">This is a special notification which you can dismiss if you're bored with it.</p>
+                    </div>
                 </div>
             {% endif %}
         {% endif %}
@@ -120,11 +127,27 @@ $("#next_round").api({
 action: 'start next round',
 onSuccess: function(response) {
       // valid response and response.success = true
-	  document.getElementById("round_container").innerHTML = response.html;
+      if (response.hasOwnProperty('error'))
+      {
+        $("#error_message").html(response.error);
+        $("#error_message").closest('.message').removeClass('hidden');
+      }
+      else
+      {
+        document.getElementById("round_container").innerHTML = response.html;
+      }
     },
 });
 $(".ui.pointing.menu .item").tab({history:false});
 $('.ui.modal').modal();
 $('.ui.dropdown').dropdown();
+$('.message .close')
+  .on('click', function() {
+    $(this)
+      .closest('.message')
+      .transition('fade')
+    ;
+  })
+;
 </script>
 {% endblock javascript_includes %}
