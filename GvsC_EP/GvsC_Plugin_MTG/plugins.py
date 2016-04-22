@@ -15,8 +15,14 @@ from GvsC_Main.models import Seating
 class MTG_GamePlugin(GamePluginPoint):
     name = 'MTG'
     title = 'Magic: The Gathering'
+    player_stats_cache = {}
     
     def _CalcualtePlayerStats(self, pPlayer, pTournament):
+        
+        cached_version = player_stats_cache.get(pPlayer.name)
+        if cached_version != None:
+            return cached_version
+            
         player = {}
         
         player['name'] = pPlayer.name
@@ -25,14 +31,22 @@ class MTG_GamePlugin(GamePluginPoint):
         player['losses'] = 0
         player['byes'] = 0
         player['match_points'] = 0
+        player['match_win_percent'] = 0.0
         player['opp_match_win_percent'] = 0
         player['game_win_percent'] = 0
         player['opp_game_win_percent'] = 0
         player['player'] = pPlayer
         
+        # Byes are not included in your match win or game percentages.
+        matches_played = 0
+        real_wins = 0
+        games_played = 0
+        real_games = 
+        
         for seating in Seating.objects.filter(singleplayerseating__player=pPlayer,match__tournament=pTournament):
             if seating.result_option == 1:
                 player['wins'] += 1
+                real_wins += 1
             elif seating.result_option == 2:
                 player['losses'] += 1
             elif seating.result_option == 3:
@@ -41,6 +55,14 @@ class MTG_GamePlugin(GamePluginPoint):
             if seating.match.is_bye == True:
                 player['byes'] += 1
                 player['wins'] += 1
+                
+            matches_played +=1
+        
+        player['match_win_percent'] = 100 * float(real_wins)/float(matches_played)
+        
+        player_stats_cache[player['name']] = player
+        
+        
                 
         print(player)
         return player
