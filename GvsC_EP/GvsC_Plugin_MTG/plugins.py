@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from django.template.loader import render_to_string
 from random import randint
-from itertools import tee, zip_longest
+from itertools import tee, zip_longest, groupby
 
 def grouper(iterable, n, fillvalue=None):
     "Collect data into fixed-length chunks or blocks"
@@ -10,22 +10,103 @@ def grouper(iterable, n, fillvalue=None):
     return zip_longest(*args, fillvalue=fillvalue)
 
 from GvsC_EP.plugins import GamePluginPoint
+from GvsC_Main.models import Seating
 
 class MTG_GamePlugin(GamePluginPoint):
     name = 'MTG'
     title = 'Magic: The Gathering'
+    player_stats_cache = {}
     
-    def _CalcualtePlayerStats(self, pPlayer):
+    def _CalculatePlayerMatchWinPercentage(self, pPlayer, pTournament):
+        # Byes are not included in your match win or game percentages.
+        matches_played = 0
+        real_wins = 0
+        games_played = 0
+        real_games = 0
+        
+        for seating in Seating.objects.filter(singleplayerseating__player=pPlayer,match__tournament=pTournament):                
+            if seating.result_option == 1:
+                real_wins += 1                
+            matches_played +=1
+        
+        if matches_played > 0:
+            return 100 * float(real_wins)/float(matches_played)
+        else:
+            return 0.0
+        
+    def _CalculatePlayerGameWinPercentage(self, pPlayer, pTournament):
+        # Byes are not included in your match win or game percentages.
+        matches_played = 0
+        real_wins = 0
+        games_played = 0
+        real_games = 0
+        
+        for seating in Seating.objects.filter(singleplayerseating__player=pPlayer,match__tournament=pTournament):                
+            if seating.result_option == 1:
+                real_wins += 1                
+            matches_played +=1
+        
+        if matches_played > 0:
+            return 100 * float(real_wins)/float(matches_played)
+        else:
+            return 0.0
+    
+    def _CalcualtePlayerStats(self, pPlayer, pTournament):
+        
         player = {}
         
         player['name'] = pPlayer.name
-        player['match_points'] = randint(0,10)
+        player['wins'] = 0
+        player['draws'] = 0
+        player['losses'] = 0
+        player['byes'] = 0
+        player['match_points'] = 0
+        player['match_win_percent'] = 0.0
         player['opp_match_win_percent'] = 0
         player['game_win_percent'] = 0
         player['opp_game_win_percent'] = 0
-        player['byes'] = 0
         player['player'] = pPlayer
         
+        # Byes are not included in your match win or game percentages.
+        matches_played = 0
+        real_wins = 0
+        games_played = 0
+        real_games = 0
+        
+        opponents = []
+        
+        for seating in Seating.objects.filter(singleplayerseating__player=pPlayer,match__tournament=pTournament):
+            for opponent_seating in Seating.objects.filter(match=seating.match).exclude(singleplayerseating__player=pPlayer):
+                opponents.append(opponent_seating.player)
+                
+            if seating.match.is_bye == True:
+                player['byes'] += 1
+                player['wins'] += 1
+            elif seating.result_option == 1:
+                player['wins'] += 1
+                real_wins += 1
+            elif seating.result_option == 2:
+                player['losses'] += 1
+            elif seating.result_option == 3:
+                player['draws'] += 1
+
+            matches_played +=1
+        
+        if matches_played > 0:
+            player['match_win_percent'] = 100 * float(real_wins)/float(matches_played)
+        
+        opponents_match_win = []
+        opponents_game_win = []
+        for opponent in opponents:
+            opponents_match_win.append(self._CalculatePlayerMatchWinPercentage(opponent, pTournament))
+            opponents_game_win.append(self._CalculatePlayerGameWinPercentage(opponent, pTournament))
+            
+        if len(opponents_match_win) > 0:
+            player['opp_match_win_percent'] = sum(opponents_match_win)/float(len(opponents_match_win))
+            
+        if len(opponents_game_win) > 0:
+            player['opp_game_win_percent'] = sum(opponents_game_win)/float(len(opponents_game_win))
+                
         return player
 
     def GenerateStandingsTable(self, pTournament):
@@ -35,10 +116,14 @@ class MTG_GamePlugin(GamePluginPoint):
             for i, player in enumerate(pTournament.players.all()):
                 # Calculate the points and tie breakers for each player
                 # store them locally to be sorted.
-                players.append(self._CalcualtePlayerStats(player))
+                players.append(self._CalcualtePlayerStats(player, pTournament))
                 
         # Sort the players
-        players.sort(key = lambda player: (player['match_points'], player['opp_match_win_percent'], player['game_win_percent'],player['opp_game_win_percent'], player['byes'], player['name']), reverse=True)
+        players.sort(key = lambda player: (player['wins'], player['draws'], player['losses'],player['match_points'], player['opp_match_win_percent'], player['game_win_percent'], player['opp_game_win_percent'], player['byes']), reverse=True)
+        
+        #for player in players:
+        #    print(player['name'] + " Wins: " + str(player['wins']) + " Draws: " + str(player['draws']) + " Losses: " + str(player['losses']))
+        
         table_string = ''
         table_string += '<table class="ui celled padded table">\r\n'
         table_string += '\t<thead>\r\n'
@@ -69,11 +154,39 @@ class MTG_GamePlugin(GamePluginPoint):
             for i, player in enumerate(pTournament.players.all()):
                 # Calculate the points and tie breakers for each player
                 # store them locally to be sorted.
-                players.append(self._CalcualtePlayerStats(player))
+                players.append(self._CalcualtePlayerStats(player, pTournament))
                 
         # Sort the players
-        players.sort(key = lambda player: (player['match_points'], player['opp_match_win_percent'], player['game_win_percent'],player['opp_game_win_percent'], player['byes'], player['name']), reverse=True)
-        pairings = list(grouper(players, 2))
+        pairings = []        
+        groups = []
+        uniquekeys = []
+        data = sorted(players, key=lambda player: (player['wins'], player['draws'], player['losses'], player['byes']), reverse=True)
+        for k, g in groupby(data, lambda player: (player['wins'], player['draws'], player['losses'])):
+            groups.append(list(g))
+            uniquekeys.append(k)
+            
+        print(groups)
+        
+        for i, group in enumerate(groups):
+            while len(group) > 1:
+                player_1_index = 0
+                player_2_index = randint(1,len(group)-1)
+                player_1 = group[player_1_index]
+                player_2 = group[player_2_index]
+                
+                output = str(player_1) + " Vs " + str(player_2)
+
+                pairings.append([player_1, player_2])
+                
+                group.remove(player_1)
+                group.remove(player_2)
+            
+            if len(group) == 1 and i+1 > len(groups):
+                groups[i+1].insert(0, group[0])
+                group.remove(group[0])
+            elif len(group) == 1:
+                pairings.append([group[0], None])
+                
         return pairings
         
     def GeneratePairingsTable(self, pTournament, pRoundNumber, pRequest):
@@ -89,3 +202,8 @@ class MTG_GamePlugin(GamePluginPoint):
             pSeat0.winner = True
         elif pSeat1.result_option == "1":
             pSeat1.winner = True
+            
+    def GetByeResult(self):
+        return 1
+    def GetByeScore(self):
+        return 2
