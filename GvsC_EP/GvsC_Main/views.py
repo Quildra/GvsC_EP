@@ -94,7 +94,7 @@ def tournaments_next_round(request, tournament_id):
             if all_matches_complete == False:
                 error = 'Not all matches complete. The following matches still need results submitted: <br>'
                 for match in unfinished_matches:
-                    error += match.seating_set.first().player.name + ' Vs ' + match.seating_set.last().player.name + '<br>'
+                    error += match.seating_set.first().player.player.name + ' Vs ' + match.seating_set.last().player.player.name + '<br>'
                 
                 return HttpResponse(json.dumps({'error': mark_safe(error)}), content_type="application/json")
             
@@ -109,6 +109,8 @@ def tournaments_next_round(request, tournament_id):
             new_match = Match.objects.create(round_number=next_round_number, tournament=tournament, table_number=i, match_completed=False)
             SinglePlayerSeating.objects.create(result_option=0, score=0, match=new_match, player=pairings[i][0]['player'])
             SinglePlayerSeating.objects.create(result_option=0, score=0, match=new_match, player=pairings[i][1]['player'])
+            TournamentParticipantOpponent.objects.create(current_player=pairings[i][0]['player'], opponent_player=pairings[i][1]['player'], round_number=next_round_number)
+            TournamentParticipantOpponent.objects.create(current_player=pairings[i][1]['player'], opponent_player=pairings[i][0]['player'], round_number=next_round_number)
             
         if needs_a_bye == True:
             new_match = Match.objects.create(round_number=next_round_number, tournament=tournament, table_number=num_matches, match_completed=True, is_bye=True)
