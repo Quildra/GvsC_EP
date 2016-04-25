@@ -111,7 +111,31 @@
 	{% if request.user.is_authenticated == True %}
 		{% if request.user.is_staff == True %}
 			<div class="ui tab segment" data-tab="manage">
-				Shh
+				<div class="header">
+                    Enrolled Players
+                </div>
+                <div class="ui segment">
+                    <div class="ui grid">
+                        {% for participant in tournament.players.all %}
+                            <div class="four wide column">participant.player.name</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="ui relaxed grid">
+                    <div class="eight wide column">
+                        <div class="ui search">
+                            <div class="ui icon input">
+                                <input class="prompt" type="text" placeholder="Enroll Existing Player">
+                                <i class="search icon"></i>
+                            </div>
+                            <div class="results"></div>
+                        </div>
+                    </div>
+                    <div class="eight wide column">
+                        <div class="ui primary button">Enroll New Player</div>
+                    </div>
+                    
+                </div>
 			</div>
 		{% endif %}
 	{% endif %}
