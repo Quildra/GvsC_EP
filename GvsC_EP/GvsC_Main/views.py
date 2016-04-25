@@ -77,13 +77,30 @@ def tournaments_next_round(request, tournament_id):
         if not request.user.is_authenticated or not request.user.is_staff:
             html = render_to_string('tournaments/round_table.html', {'tournament': tournament})
             return HttpResponse(json.dumps({'html': mark_safe(html)}), content_type="application/json")
-        
+            
+        num_rounds = tournament.match_set.all().aggregate(Max('round_number'))
+        current_round_number = 0 if num_rounds['round_number__max'] == None else num_rounds['round_number__max']
+        next_round_number = 1 if num_rounds['round_number__max'] == None else num_rounds['round_number__max'] + 1
+            
+        # If we are not on the first round then make sure all the matches from the current round are complete.
+        if current_round_number > 0:
+            unfinished_matches = []
+            all_matches_complete = True
+            for match in Match.objects.filter(tournament=tournament, round_number=current_round_number):
+                if match.match_completed == False:
+                    all_matches_complete = False
+                    unfinished_matches.append(match)
+            
+            if all_matches_complete == False:
+                error = 'Not all matches complete. The following matches still need results submitted: <br>'
+                for match in unfinished_matches:
+                    error += match.seating_set.first().player.name + ' Vs ' + match.seating_set.last().player.name + '<br>'
+                
+                return HttpResponse(json.dumps({'error': mark_safe(error)}), content_type="application/json")
+            
         player_count = tournament.players.count()
         needs_a_bye = player_count % 2 == 1
         num_matches = int(player_count * 0.5)
-        num_rounds = tournament.match_set.all().aggregate(Max('round_number'))
-        
-        next_round_number = 1 if num_rounds['round_number__max'] == None else num_rounds['round_number__max'] + 1
         
         plugin = tournament.game_plugin.get_plugin()
         pairings = plugin.PairRound(tournament)
