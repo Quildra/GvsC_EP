@@ -135,6 +135,7 @@ onSuccess: function(response) {
       else
       {
         document.getElementById("round_container").innerHTML = response.html;
+        $("#error_message").closest('.message').addClass('hidden');
       }
     },
 });
