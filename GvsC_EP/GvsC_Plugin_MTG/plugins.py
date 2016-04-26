@@ -9,7 +9,7 @@ def grouper(iterable, n, fillvalue=None):
     args = [iter(iterable)] * n
     return zip_longest(*args, fillvalue=fillvalue)
 
-from GvsC_EP.plugins import GamePluginPoint
+from GvsC_Main.plugins import GamePluginPoint
 from GvsC_Main.models import Seating
 
 class MTG_GamePlugin(GamePluginPoint):
