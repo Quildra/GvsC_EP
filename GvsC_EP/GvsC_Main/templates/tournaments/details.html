@@ -7,21 +7,16 @@
 
 <style type="text/css">
 	.masthead.segment {
-      padding: 1em 0em;
+      padding: 1em 0;
     }
     .masthead .logo.item img {
       margin-right: 1em;
     }
-    .masthead .ui.menu .ui.button {
-      margin-left: 0.5em;
-    }
+
     .masthead h2 {
       font-size: 1.7em;
       font-weight: normal;
     }
-	.inline_header {
-		display: inline-block;
-	}
 </style>
 
 {% endblock head %}
@@ -48,9 +43,7 @@
 <div class="ui middle aligned container" style="margin-top:1em;">
 	<div class="ui segment">
 		<h3 class="ui centered header">
-			<div class="content">
-				{{ tournament.game_plugin.title }}
-			</div>
+            {{ tournament.game_plugin.title }}
 		</h3>
 		<div class="ui equal width grid">
 			<div class="equal width row">
@@ -63,9 +56,7 @@
 			</div>
 		</div>
 		<h3 class="ui left aligned header">
-			<div class="content">
-				Description:
-			</div>
+            Description:
 		</h3>
 		<div class="ui left aligned container">
 			{{ tournament.description }}
@@ -145,7 +136,7 @@
 {% block javascript_includes %}
 <script>
 $.fn.api.settings.api = {
-  'start next round' : '/tournaments/{tournament_id}/next_round',
+  'start next round' : '/tournaments/{tournament_id}/next_round'
 };
 $("#next_round").api({
 action: 'start next round',
@@ -153,15 +144,16 @@ onSuccess: function(response) {
       // valid response and response.success = true
       if (response.hasOwnProperty('error'))
       {
-        $("#error_message").html(response.error);
-        $("#error_message").closest('.message').removeClass('hidden');
+          var error_message = $("#error_message");
+          error_message.html(response.error);
+          error_message.closest('.message').removeClass('hidden');
       }
       else
       {
         document.getElementById("round_container").innerHTML = response.html;
         $("#error_message").closest('.message').addClass('hidden');
       }
-    },
+    }
 });
 $(".ui.pointing.menu .item").tab({history:false});
 $('.ui.modal').modal();
