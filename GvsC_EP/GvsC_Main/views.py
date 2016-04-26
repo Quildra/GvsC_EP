@@ -8,7 +8,7 @@ from django.db.models import Max
 import json
 import urllib.parse
 
-from .models import Event, Tournament, Match, SinglePlayerSeating
+from .models import Event, Tournament, Match, SinglePlayerSeating, Player, TournamentParticipant, TournamentParticipantOpponent
 
 def index(request):
     upcoming_events = Event.objects.order_by('-start_date')
@@ -39,8 +39,12 @@ def tournaments_details(request, tournament_id):
     num_rounds = tournament.match_set.all().aggregate(Max('round_number'))
     data = request.GET
     pairings_active = data.get('pa', False)
+    enrolled_players = []
+    for participant in tournament.players.all():
+        enrolled_players.append(participant.player.pk)
+    not_enrolled_players = Player.objects.exclude(pk__in=enrolled_players)
     
-    return render(request, 'tournaments/details.html', {'tournament': tournament, 'num_rounds': num_rounds['round_number__max'], 'request':request, 'pairings_active':pairings_active})
+    return render(request, 'tournaments/details.html', {'tournament': tournament, 'num_rounds': num_rounds['round_number__max'], 'request':request, 'pairings_active':pairings_active, 'not_enrolled_players':not_enrolled_players})
     
 def record_match_result(pMatchID, pSeat0ID, pSeat0Result, pSeat0Score, pSeat1ID, pSeat1Result, pSeat1Score, pWasABye ):
     match = get_object_or_404(Match, pk = pMatchID)
