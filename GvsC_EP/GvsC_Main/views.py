@@ -1,3 +1,4 @@
+from django.shortcuts import redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.core.urlresolvers import reverse
@@ -42,16 +43,16 @@ def tournaments_index(request):
 def tournaments_details(request, tournament_id):
     tournament = get_object_or_404(Tournament, pk=tournament_id)
     num_rounds = tournament.match_set.all().aggregate(Max('round_number'))
-    data = request.GET
-    pairings_active = data.get('pa', False)
     enrolled_players = []
-    for participant in tournament.players.all():
+    for participant in tournament.tournamentparticipant_set.all():
         enrolled_players.append(participant.player.pk)
     not_enrolled_players = Player.objects.exclude(pk__in=enrolled_players)
+    data = request.GET
+    tab = data.get('tab', "standings")
 
     return render(request, 'tournaments/details.html',
                   {'tournament': tournament, 'num_rounds': num_rounds['round_number__max'], 'request': request,
-                   'pairings_active': pairings_active, 'not_enrolled_players': not_enrolled_players})
+                   'active_tab':tab, 'not_enrolled_players': not_enrolled_players})
 
 
 def record_match_result(match_pk, seat_0_pk, seat_0_result, seat_0_score, seat_1_pk, seat_1_result, seat_1_score,
@@ -112,7 +113,7 @@ def tournaments_next_round(request, tournament_id):
 
                 return HttpResponse(json.dumps({'error': mark_safe(error)}), content_type="application/json")
 
-        player_count = tournament.players.count()
+        player_count = tournament.tournamentparticipant_set.count()
         needs_a_bye = player_count % 2 == 1
         num_matches = int(player_count * 0.5)
 
@@ -169,6 +170,25 @@ def tournaments_report_match_result(request, tournament_id):
     record_match_result(match_id, seat_0_id, seat_0_result, seat_0_score, seat_1_id, seat_1_result, seat_1_score, False)
 
     redirect_url = reverse('tournament_details', kwargs={'tournament_id': tournament_id})
-    extra_params = urllib.parse.urlencode({'pa': True})
+    extra_params = urllib.parse.urlencode({'tab': 'pairings'})
     full_redirect_url = '%s?%s' % (redirect_url, extra_params)
     return HttpResponseRedirect(full_redirect_url)
+    #redirect('tournament_details', tournament_id=tournament_id, tab="pairings")
+
+
+def tournaments_enroll_player(request, tournament_id):
+    tournament = get_object_or_404(Tournament, pk=tournament_id)
+    data = request.POST
+    player_id = data.get('player_id', 0)
+    player = get_object_or_404(Player, pk=player_id)
+    already_enrolled = TournamentParticipant.objects.filter(tournament=tournament, player=player)
+    if len(already_enrolled) == 0:
+        participant = TournamentParticipant.objects.create(tournament=tournament, player=player, dropped=False, dropped_in_round=0)
+
+
+    redirect_url = reverse('tournament_details', kwargs={'tournament_id': tournament_id})
+    extra_params = urllib.parse.urlencode({'tab': 'manage'})
+    full_redirect_url = '%s?%s' % (redirect_url, extra_params)
+    return HttpResponseRedirect(full_redirect_url)
+
+    #return redirect('tournament_details', tournament_id=tournament_id, kwargs={'tab':"manage"})

@@ -55,7 +55,7 @@ class MTG_GamePlugin(GamePluginPoint):
         
         player = {}
         
-        player['name'] = pPlayer.name
+        player['name'] = pPlayer.name()
         player['wins'] = 0
         player['draws'] = 0
         player['losses'] = 0
@@ -113,7 +113,7 @@ class MTG_GamePlugin(GamePluginPoint):
         single_player_tournament = hasattr(pTournament, 'players')
         players = []
         if single_player_tournament:
-            for i, player in enumerate(pTournament.players.all()):
+            for i, player in enumerate(pTournament.tournamentparticipant_set.all()):
                 # Calculate the points and tie breakers for each player
                 # store them locally to be sorted.
                 players.append(self._CalcualtePlayerStats(player, pTournament))
@@ -151,7 +151,7 @@ class MTG_GamePlugin(GamePluginPoint):
         single_player_tournament = hasattr(pTournament, 'players')
         players = []
         if single_player_tournament:
-            for i, player in enumerate(pTournament.players.all()):
+            for i, player in enumerate(pTournament.tournamentparticipant_set.all()):
                 # Calculate the points and tie breakers for each player
                 # store them locally to be sorted.
                 players.append(self._CalcualtePlayerStats(player, pTournament))

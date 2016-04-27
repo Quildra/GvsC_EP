@@ -78,19 +78,18 @@
             </div>
         </div>
         <div class="ui pointing menu">
-
-            <a class="{{ pairings_active|yesno:' ,active' }} green item" data-tab="standings"> Standings </a>
-            <a class="{{ pairings_active|yesno:'active, ' }} blue item" data-tab="pairings"> Pairings </a>
+            <a class="{% ifequal active_tab "standings" %} active {% endifequal %}green item" data-tab="standings"> Standings </a>
+            <a class="{% ifequal active_tab "pairings" %} active {% endifequal %}blue item" data-tab="pairings"> Pairings </a>
             {% if request.user.is_authenticated == True %}
                 {% if request.user.is_staff == True %}
-                    <a class="red item" data-tab="manage"> Manage </a>
+                    <a class="{% ifequal active_tab "manage" %} active {% endifequal %}red item" data-tab="manage"> Manage </a>
                 {% endif %}
             {% endif %}
         </div>
-        <div class="{{ pairings_active|yesno:' ,active' }} ui tab segment" data-tab="standings">
+        <div class="{% ifequal active_tab "standings" %} active {% endifequal %} ui tab segment" data-tab="standings">
             {% render_standings_table tournament %}
         </div>
-        <div class="{{ pairings_active|yesno:'active, ' }} ui tab segment" data-tab="pairings">
+        <div class="{% ifequal active_tab "pairings" %} active {% endifequal %} ui tab segment" data-tab="pairings">
             <!-- Start next round button - Finish tournament button -->
             {% if request.user.is_authenticated == True %}
                 {% if request.user.is_staff == True %}
@@ -119,14 +118,14 @@
         </div>
         {% if request.user.is_authenticated == True %}
             {% if request.user.is_staff == True %}
-                <div class="ui tab segment" data-tab="manage">
+                <div class="{% ifequal active_tab "manage" %} active {% endifequal %}ui tab segment" data-tab="manage">
                     <div class="ui top attached header">
                         Enrolled Players
                     </div>
                     <div class="ui attached segment">
                         <div class="ui grid">
-                            {% for participant in tournament.players.all %}
-                                <div class="four wide column">participant.player.name</div>
+                            {% for participant in tournament.tournamentparticipant_set.all %}
+                                <div class="four wide column">{{ participant.player.name }}</div>
                             {% endfor %}
                         </div>
                     </div>
@@ -146,7 +145,7 @@
                                 {% endfor %}
                             </ul>
                         </div>
-                        <div class="ui fluid primary button">Enroll New Player</div>
+                        <div class="ui fluid primary button" onclick="$('#enroll_new_player').modal('show');">Enroll New Player</div>
                     </div>
 
                 </div>
@@ -157,16 +156,19 @@
 
 {% block javascript_includes %}
     <script>
-        {#This is the stuff that makes the search magically work.#}
+{#        This is the stuff that makes the search magically work.#}
         var options = {
             valueNames: ['name', 'uid', 'user_name']
         };
         var player_list = new List('player_list', options);
-
-        function EnrollPlayer( pPlayerID, pTournamentID ) {
-
-        }
-
+    </script>
+    <script>
+     function EnrollPlayer( pPlayerID, pTournamentID ) {
+{#         $.post('/tournaments/'+pTournamentID+'/enroll_player/', {player_id:pPlayerID, 'csrfmiddlewaretoken': '{{ csrf_token }}'});#}
+         $.redirect('/tournaments/'+pTournamentID+'/enroll_player/',{ player_id: pPlayerID, 'csrfmiddlewaretoken': '{{ csrf_token }}'});
+     }
+    </script>
+    <script>
         $.fn.api.settings.api = {
             'start next round': '/tournaments/{tournament_id}/next_round'
         };

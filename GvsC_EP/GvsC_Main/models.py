@@ -27,6 +27,9 @@ class TournamentParticipant(models.Model):
     
     def __str__(self):
         return self.player.name
+
+    def name(self):
+        return self.player.name
         
 class TournamentParticipantOpponent(models.Model):
     current_player = models.ForeignKey(TournamentParticipant, related_name='current_player', on_delete=models.CASCADE)
