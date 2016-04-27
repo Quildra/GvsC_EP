@@ -10,7 +10,7 @@ def grouper(iterable, n, fillvalue=None):
     return zip_longest(*args, fillvalue=fillvalue)
 
 from GvsC_Main.plugins import GamePluginPoint
-from GvsC_Main.models import Seating
+from GvsC_Main.models import Seating, TournamentParticipantOpponent
 
 class MTG_GamePlugin(GamePluginPoint):
     name = 'MTG'
@@ -74,10 +74,13 @@ class MTG_GamePlugin(GamePluginPoint):
         real_games = 0
         
         opponents = []
-        
+
+        for match_up in TournamentParticipantOpponent.objects.filter(current_player=player['player']):
+            opponents.append(match_up.opponent_player)
+
         for seating in Seating.objects.filter(singleplayerseating__player=pPlayer,match__tournament=pTournament):
-            for opponent_seating in Seating.objects.filter(match=seating.match).exclude(singleplayerseating__player=pPlayer):
-                opponents.append(opponent_seating.player)
+        #     for opponent_seating in Seating.objects.filter(match=seating.match).exclude(singleplayerseating__player=pPlayer):
+        #         opponents.append(opponent_seating.player)
                 
             if seating.match.is_bye == True:
                 player['byes'] += 1

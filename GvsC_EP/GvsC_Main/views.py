@@ -109,7 +109,7 @@ def tournaments_next_round(request, tournament_id):
             if not all_matches_complete:
                 error = 'Not all matches complete. The following matches still need results submitted: <br>'
                 for match in unfinished_matches:
-                    error += match.seating_set.first().player.player.name + ' Vs ' + match.seating_set.last().player.player.name + '<br>'
+                    error += match.seating_set.first().player.player.name() + ' Vs ' + match.seating_set.last().player.player.name() + '<br>'
 
                 return HttpResponse(json.dumps({'error': mark_safe(error)}), content_type="application/json")
 
@@ -173,11 +173,11 @@ def tournaments_report_match_result(request, tournament_id):
     extra_params = urllib.parse.urlencode({'tab': 'pairings'})
     full_redirect_url = '%s?%s' % (redirect_url, extra_params)
     return HttpResponseRedirect(full_redirect_url)
-    #redirect('tournament_details', tournament_id=tournament_id, tab="pairings")
 
 
 def tournaments_enroll_player(request, tournament_id):
     tournament = get_object_or_404(Tournament, pk=tournament_id)
+
     data = request.POST
     player_id = data.get('player_id', 0)
     player = get_object_or_404(Player, pk=player_id)
@@ -185,10 +185,23 @@ def tournaments_enroll_player(request, tournament_id):
     if len(already_enrolled) == 0:
         participant = TournamentParticipant.objects.create(tournament=tournament, player=player, dropped=False, dropped_in_round=0)
 
-
     redirect_url = reverse('tournament_details', kwargs={'tournament_id': tournament_id})
     extra_params = urllib.parse.urlencode({'tab': 'manage'})
     full_redirect_url = '%s?%s' % (redirect_url, extra_params)
     return HttpResponseRedirect(full_redirect_url)
 
-    #return redirect('tournament_details', tournament_id=tournament_id, kwargs={'tab':"manage"})
+def tournaments_enroll_new_player(request, tournament_id):
+    tournament = get_object_or_404(Tournament, pk=tournament_id)
+
+    data = request.POST
+    first_name = data.get('first_name', "")
+    last_name = data.get('last_name', "")
+    email = data.get('email', "")
+
+    new_player = Player.objects.create(first_name=first_name, last_name=last_name, email_address=email)
+    participant = TournamentParticipant.objects.create(tournament=tournament, player=new_player, dropped=False, dropped_in_round=0)
+
+    redirect_url = reverse('tournament_details', kwargs={'tournament_id': tournament_id})
+    extra_params = urllib.parse.urlencode({'tab': 'manage'})
+    full_redirect_url = '%s?%s' % (redirect_url, extra_params)
+    return HttpResponseRedirect(full_redirect_url)
