@@ -78,11 +78,14 @@
             </div>
         </div>
         <div class="ui pointing menu">
-            <a class="{% ifequal active_tab "standings" %} active {% endifequal %}green item" data-tab="standings"> Standings </a>
-            <a class="{% ifequal active_tab "pairings" %} active {% endifequal %}blue item" data-tab="pairings"> Pairings </a>
+            <a class="{% ifequal active_tab "standings" %} active {% endifequal %}green item" data-tab="standings">
+                Standings </a>
+            <a class="{% ifequal active_tab "pairings" %} active {% endifequal %}blue item" data-tab="pairings">
+                Pairings </a>
             {% if request.user.is_authenticated == True %}
                 {% if request.user.is_staff == True %}
-                    <a class="{% ifequal active_tab "manage" %} active {% endifequal %}red item" data-tab="manage"> Manage </a>
+                    <a class="{% ifequal active_tab "manage" %} active {% endifequal %}red item" data-tab="manage">
+                        Manage </a>
                 {% endif %}
             {% endif %}
         </div>
@@ -145,28 +148,70 @@
                                 {% endfor %}
                             </ul>
                         </div>
-                        <div class="ui fluid primary button" onclick="$('#enroll_new_player').modal('show');">Enroll New Player</div>
+                        <div class="ui fluid primary button" onclick="$('#enroll_new_player').modal('show');">Enroll New
+                            Player
+                        </div>
                     </div>
 
                 </div>
             {% endif %}
         {% endif %}
     </div>
+
+    <div class="ui modal" id="enroll_new_player">
+        <i class="close icon"></i>
+        <div class="header">
+            Enroll New Player
+        </div>
+        <div class="content">
+            <form class="ui form" method="post" id="enroll_new_player_form"
+                  action="/tournaments/{{ tournament.pk }}/enroll_new_player/">
+                {% csrf_token %}
+                <input type="hidden" name="tournament_id" value={{ tournament.pk }}>
+                <div class="field">
+                    <label>Name</label>
+                    <div class="two fields">
+                        <div class="required field">
+                            <input type="text" name="first_name" placeholder="First Name">
+                        </div>
+                        <div class="required field">
+                            <input type="text" name="last_name" placeholder="Last Name">
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>E-Mail Address</label>
+                    <input type="email" name="e_mail" placeholder="E-Mail address">
+                </div>
+                <div class="disabled field">
+                    <label>GvsC ID</label>
+                    <input placeholder="Server Generated" disabled="" type="text">
+                </div>
+            </form>
+        </div>
+        <div class="actions">
+            <div class="ui cancel button">Cancel</div>
+            <input type="submit" value="Enroll Player" form="enroll_new_player_form" class="ui primary button">
+        </div>
+    </div>
+
 {% endblock main_content %}
 
 {% block javascript_includes %}
     <script>
-{#        This is the stuff that makes the search magically work.#}
+        {#        This is the stuff that makes the search magically work.#}
         var options = {
             valueNames: ['name', 'uid', 'user_name']
         };
         var player_list = new List('player_list', options);
     </script>
     <script>
-     function EnrollPlayer( pPlayerID, pTournamentID ) {
-{#         $.post('/tournaments/'+pTournamentID+'/enroll_player/', {player_id:pPlayerID, 'csrfmiddlewaretoken': '{{ csrf_token }}'});#}
-         $.redirect('/tournaments/'+pTournamentID+'/enroll_player/',{ player_id: pPlayerID, 'csrfmiddlewaretoken': '{{ csrf_token }}'});
-     }
+        function EnrollPlayer(pPlayerID, pTournamentID) {
+            $.redirect('/tournaments/' + pTournamentID + '/enroll_player/', {
+                player_id: pPlayerID,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            });
+        }
     </script>
     <script>
         $.fn.api.settings.api = {
