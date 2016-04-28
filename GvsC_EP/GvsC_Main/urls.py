@@ -19,4 +19,10 @@ urlpatterns = [
     url(r'^tournaments/(?P<tournament_id>[0-9]+)/enroll_player/$', views.tournaments_enroll_player, name='tournaments_enroll_player'),
     # ex: /tournaments/5/enroll_new_player
     url(r'^tournaments/(?P<tournament_id>[0-9]+)/enroll_new_player/$', views.tournaments_enroll_new_player, name='tournaments_enroll_new_player'),
+    # ex: /tournaments/5/enroll_new_player
+    url(r'^tournaments/(?P<tournament_id>[0-9]+)/remove_player/$', views.tournaments_remove_player,
+        name='tournaments_remove_player'),
+    # ex: /tournaments/5/enroll_new_player
+    url(r'^tournaments/(?P<tournament_id>[0-9]+)/drop_player/$', views.tournaments_drop_player,
+        name='tournaments_drop_player'),
 ]

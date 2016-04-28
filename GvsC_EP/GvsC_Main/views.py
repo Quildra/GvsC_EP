@@ -205,3 +205,30 @@ def tournaments_enroll_new_player(request, tournament_id):
     extra_params = urllib.parse.urlencode({'tab': 'manage'})
     full_redirect_url = '%s?%s' % (redirect_url, extra_params)
     return HttpResponseRedirect(full_redirect_url)
+
+def tournaments_remove_player(request, tournament_id):
+    tournament = get_object_or_404(Tournament, pk=tournament_id)
+
+    data = request.POST
+    participant_id = data.get('participant_id', "")
+    TournamentParticipant.objects.get(pk=participant_id).delete()
+
+    redirect_url = reverse('tournament_details', kwargs={'tournament_id': tournament_id})
+    extra_params = urllib.parse.urlencode({'tab': 'manage'})
+    full_redirect_url = '%s?%s' % (redirect_url, extra_params)
+    return HttpResponseRedirect(full_redirect_url)
+
+def tournaments_drop_player(request, tournament_id):
+    tournament = get_object_or_404(Tournament, pk=tournament_id)
+
+    data = request.POST
+    participant_id = data.get('participant_id', "")
+    participant = TournamentParticipant.objects.get(pk=participant_id)
+    participant.dropped = True
+    #participant.dropped_in_round = tournament.GetCurrentRound()
+    participant.save()
+
+    redirect_url = reverse('tournament_details', kwargs={'tournament_id': tournament_id})
+    extra_params = urllib.parse.urlencode({'tab': 'manage'})
+    full_redirect_url = '%s?%s' % (redirect_url, extra_params)
+    return HttpResponseRedirect(full_redirect_url)
