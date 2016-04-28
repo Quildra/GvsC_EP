@@ -216,6 +216,18 @@
                 'csrfmiddlewaretoken': '{{ csrf_token }}'
             });
         }
+        function RemovePlayer(pParticipantID, pTournamentID) {
+            $.redirect('/tournaments/' + pTournamentID + '/remove_player/', {
+                participant_id: pParticipantID,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            });
+        }
+        function DropPlayer(pParticipantID, pTournamentID) {
+            $.redirect('/tournaments/' + pTournamentID + '/drop_player/', {
+                participant_id: pParticipantID,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            });
+        }
     </script>
     <script>
         $.fn.api.settings.api = {

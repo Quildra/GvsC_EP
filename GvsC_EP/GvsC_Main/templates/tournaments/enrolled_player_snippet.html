@@ -3,7 +3,14 @@
     <div class="ui segment" style="width: 25em;">
         <a class="header name">{{ participant.player.name }}</a>
         <p class="header user_name">{{ participant.player.email_address }}</p>
-        <div class="ui button"  onclick=""> Drop Player </div>
-        <div class="ui button"  onclick=""> Remove Player </div>
+        {% if tournament.get_current_round >= 1 %}
+            {% if participant.dropped %}
+                Player Dropped
+            {% else %}
+                <div class="ui button" onclick="DropPlayer({{ participant.pk  }}, {{ tournament.pk }});"> Drop Player </div>
+            {% endif %}
+        {% else %}
+            <div class="ui button" onclick="RemovePlayer({{ participant.pk  }}, {{ tournament.pk }});"> Remove Player </div>
+        {% endif %}
     </div>
 </div>

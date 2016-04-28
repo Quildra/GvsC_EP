@@ -1,4 +1,3 @@
-from django.shortcuts import redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.core.urlresolvers import reverse
@@ -52,7 +51,7 @@ def tournaments_details(request, tournament_id):
 
     return render(request, 'tournaments/details.html',
                   {'tournament': tournament, 'num_rounds': num_rounds['round_number__max'], 'request': request,
-                   'active_tab':tab, 'not_enrolled_players': not_enrolled_players})
+                   'active_tab': tab, 'not_enrolled_players': not_enrolled_players})
 
 
 def record_match_result(match_pk, seat_0_pk, seat_0_result, seat_0_score, seat_1_pk, seat_1_result, seat_1_score,
@@ -62,8 +61,8 @@ def record_match_result(match_pk, seat_0_pk, seat_0_result, seat_0_score, seat_1
     if was_a_bye:
         plugin = match.tournament.game_plugin.get_plugin()
         seat_0 = match.seating_set.get(pk=seat_0_pk)
-        seat_0.result_option = plugin.GetByeResult()
-        seat_0.score = plugin.GetByeScore()
+        seat_0.result_option = plugin.get_bye_result()
+        seat_0.score = plugin.get_bye_score()
         seat_0.save()
     else:
         seat_0 = match.seating_set.get(pk=seat_0_pk)
@@ -93,9 +92,8 @@ def tournaments_next_round(request, tournament_id):
             html = render_to_string('tournaments/round_table.html', {'tournament': tournament})
             return HttpResponse(json.dumps({'html': mark_safe(html)}), content_type="application/json")
 
-        num_rounds = tournament.match_set.all().aggregate(Max('round_number'))
-        current_round_number = 0 if num_rounds['round_number__max'] is None else num_rounds['round_number__max']
-        next_round_number = 1 if num_rounds['round_number__max'] is None else num_rounds['round_number__max'] + 1
+        current_round_number = tournament.get_current_round()
+        next_round_number = current_round_number + 1
 
         # If we are not on the first round then make sure all the matches from the current round are complete.
         if current_round_number > 0:
@@ -141,6 +139,8 @@ def tournaments_next_round(request, tournament_id):
                                                       player=pairings[num_matches][0]['player'])
             record_match_result(new_match.pk, seat.pk, 0, 0, 0, 0, 0, True)
 
+        tournament.current_round_number = next_round_number
+
         html = render_to_string('tournaments/round_table.html',
                                 {'tournament': tournament, 'num_rounds': next_round_number, "needs_a_bye": needs_a_bye,
                                  "num_matches": num_matches, 'request': request})
@@ -183,12 +183,13 @@ def tournaments_enroll_player(request, tournament_id):
     player = get_object_or_404(Player, pk=player_id)
     already_enrolled = TournamentParticipant.objects.filter(tournament=tournament, player=player)
     if len(already_enrolled) == 0:
-        participant = TournamentParticipant.objects.create(tournament=tournament, player=player, dropped=False, dropped_in_round=0)
+        TournamentParticipant.objects.create(tournament=tournament, player=player, dropped=False, dropped_in_round=0)
 
     redirect_url = reverse('tournament_details', kwargs={'tournament_id': tournament_id})
     extra_params = urllib.parse.urlencode({'tab': 'manage'})
     full_redirect_url = '%s?%s' % (redirect_url, extra_params)
     return HttpResponseRedirect(full_redirect_url)
+
 
 def tournaments_enroll_new_player(request, tournament_id):
     tournament = get_object_or_404(Tournament, pk=tournament_id)
@@ -199,16 +200,15 @@ def tournaments_enroll_new_player(request, tournament_id):
     email = data.get('email', "")
 
     new_player = Player.objects.create(first_name=first_name, last_name=last_name, email_address=email)
-    participant = TournamentParticipant.objects.create(tournament=tournament, player=new_player, dropped=False, dropped_in_round=0)
+    TournamentParticipant.objects.create(tournament=tournament, player=new_player, dropped=False, dropped_in_round=0)
 
     redirect_url = reverse('tournament_details', kwargs={'tournament_id': tournament_id})
     extra_params = urllib.parse.urlencode({'tab': 'manage'})
     full_redirect_url = '%s?%s' % (redirect_url, extra_params)
     return HttpResponseRedirect(full_redirect_url)
 
-def tournaments_remove_player(request, tournament_id):
-    tournament = get_object_or_404(Tournament, pk=tournament_id)
 
+def tournaments_remove_player(request, tournament_id):
     data = request.POST
     participant_id = data.get('participant_id', "")
     TournamentParticipant.objects.get(pk=participant_id).delete()
@@ -218,15 +218,24 @@ def tournaments_remove_player(request, tournament_id):
     full_redirect_url = '%s?%s' % (redirect_url, extra_params)
     return HttpResponseRedirect(full_redirect_url)
 
+
 def tournaments_drop_player(request, tournament_id):
     tournament = get_object_or_404(Tournament, pk=tournament_id)
+    plugin = tournament.game_plugin.get_plugin()
 
     data = request.POST
     participant_id = data.get('participant_id', "")
     participant = TournamentParticipant.objects.get(pk=participant_id)
     participant.dropped = True
-    #participant.dropped_in_round = tournament.GetCurrentRound()
+    participant.dropped_in_round = tournament.get_current_round()
     participant.save()
+
+    current_round_number = tournament.get_current_round()
+    seating = SinglePlayerSeating.objects.filter(player=participant, match__round_number__exact=current_round_number, match__match_completed=False).first()
+    if seating:
+        match_up = TournamentParticipantOpponent.objects.filter(current_player=participant, round_number=current_round_number).first()
+        other_guy = SinglePlayerSeating.objects.filter(player=match_up.opponent_player, match__round_number__exact=current_round_number).first()
+        record_match_result(seating.match.pk, seating.pk, plugin.get_loss_result(), plugin.get_loss_score(), other_guy.pk, plugin.get_win_result(), plugin.get_win_score(), False)
 
     redirect_url = reverse('tournament_details', kwargs={'tournament_id': tournament_id})
     extra_params = urllib.parse.urlencode({'tab': 'manage'})

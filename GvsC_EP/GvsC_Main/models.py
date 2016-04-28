@@ -2,6 +2,7 @@ from django.db import models
 from polymorphic.models import PolymorphicModel
 from djangoplugins.fields import PluginField
 from GvsC_Main.plugins import GamePluginPoint
+from django.db.models import Max
 
 # Create your models here.
 class Event(models.Model):
@@ -57,6 +58,12 @@ class Tournament(PolymorphicModel):
     
     def __str__(self):
         return self.title
+
+    def get_current_round(self):
+        num_rounds = self.match_set.all().aggregate(Max('round_number'))
+        current_round_number = 0 if num_rounds['round_number__max'] is None else num_rounds['round_number__max']
+        return current_round_number
+
         
 class SinglePlayerTournament(Tournament):
     players = models.ManyToManyField(TournamentParticipant, blank=True)
