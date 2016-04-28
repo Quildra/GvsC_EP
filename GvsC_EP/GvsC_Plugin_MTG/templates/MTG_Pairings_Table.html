@@ -12,15 +12,15 @@
     {% for match in matches %}
         {% if match.is_bye == False %}
            <tr>
-                <td>{{match.seating_set.first.player.name}}</td>
+                <td>{{match.seating_set.first.player.player.name}}</td>
                 <td>Vs.</td>
-                <td>{{match.seating_set.last.player.name}}</td>
+                <td>{{match.seating_set.last.player.player.name}}</td>
                 <td>
                     {% if match.match_completed == True %}
                         {% if match.seating_set.first.winner == True %}
-                            {{match.seating_set.first.player.name}} Won.
+                            {{match.seating_set.first.player.player.name}} Won.
                         {% elif match.seating_set.last.winner == True %}
-                            {{match.seating_set.last.player.name}} Won.
+                            {{match.seating_set.last.player.player.name}} Won.
                         {% else %}
                             Match Drawn.
                         {% endif %}
@@ -40,7 +40,7 @@
         <div class="ui modal" id="{{match.pk}}">
             <i class="close icon"></i>
             <div class="header">
-                {{match.seating_set.first.player.name}}  Vs.  {{match.seating_set.last.player.name}}
+                {{match.seating_set.first.player.player.name}}  Vs.  {{match.seating_set.last.player.player.name}}
             </div>
             <div>
                 <form class="ui form" method="post" id="match_{{match.pk}}_form" action="/tournaments/{{tournament.pk}}/submit_result/">
@@ -52,7 +52,7 @@
                         <div class="ui two column grid">
                             <div class="column">
                                 <div class="row">
-                                    <h4 class="ui dividing header">{{match.seating_set.first.player.name}}</h4>
+                                    <h4 class="ui dividing header">{{match.seating_set.first.player.player.name}}</h4>
                                     <div class="fields">
                                         <div class="inline field">
                                             <label>Result:</label>
@@ -76,7 +76,7 @@
                             </div>
                             <div class="column">
                                 <div class="row">
-                                    <h4 class="ui dividing header">{{match.seating_set.last.player.name}}</h4>
+                                    <h4 class="ui dividing header">{{match.seating_set.last.player.player.name}}</h4>
                                     <div class="fields">
                                         <div class="inline field">
                                             <label>Result:</label>

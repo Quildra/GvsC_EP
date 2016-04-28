@@ -9,8 +9,8 @@ def grouper(iterable, n, fillvalue=None):
     args = [iter(iterable)] * n
     return zip_longest(*args, fillvalue=fillvalue)
 
-from GvsC_EP.plugins import GamePluginPoint
-from GvsC_Main.models import Seating
+from GvsC_Main.plugins import GamePluginPoint
+from GvsC_Main.models import Seating, TournamentParticipantOpponent
 
 class MTG_GamePlugin(GamePluginPoint):
     name = 'MTG'
@@ -55,7 +55,7 @@ class MTG_GamePlugin(GamePluginPoint):
         
         player = {}
         
-        player['name'] = pPlayer.name
+        player['name'] = pPlayer.name()
         player['wins'] = 0
         player['draws'] = 0
         player['losses'] = 0
@@ -74,10 +74,13 @@ class MTG_GamePlugin(GamePluginPoint):
         real_games = 0
         
         opponents = []
-        
+
+        for match_up in TournamentParticipantOpponent.objects.filter(current_player=player['player']):
+            opponents.append(match_up.opponent_player)
+
         for seating in Seating.objects.filter(singleplayerseating__player=pPlayer,match__tournament=pTournament):
-            for opponent_seating in Seating.objects.filter(match=seating.match).exclude(singleplayerseating__player=pPlayer):
-                opponents.append(opponent_seating.player)
+        #     for opponent_seating in Seating.objects.filter(match=seating.match).exclude(singleplayerseating__player=pPlayer):
+        #         opponents.append(opponent_seating.player)
                 
             if seating.match.is_bye == True:
                 player['byes'] += 1
@@ -113,7 +116,7 @@ class MTG_GamePlugin(GamePluginPoint):
         single_player_tournament = hasattr(pTournament, 'players')
         players = []
         if single_player_tournament:
-            for i, player in enumerate(pTournament.players.all()):
+            for i, player in enumerate(pTournament.tournamentparticipant_set.all()):
                 # Calculate the points and tie breakers for each player
                 # store them locally to be sorted.
                 players.append(self._CalcualtePlayerStats(player, pTournament))
@@ -151,7 +154,7 @@ class MTG_GamePlugin(GamePluginPoint):
         single_player_tournament = hasattr(pTournament, 'players')
         players = []
         if single_player_tournament:
-            for i, player in enumerate(pTournament.players.all()):
+            for i, player in enumerate(pTournament.tournamentparticipant_set.all()):
                 # Calculate the points and tie breakers for each player
                 # store them locally to be sorted.
                 players.append(self._CalcualtePlayerStats(player, pTournament))

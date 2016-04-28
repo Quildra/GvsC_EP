@@ -14,10 +14,32 @@ class Event(models.Model):
         return self.name
 
 class Player(models.Model):
-    name = models.CharField(max_length=200)
+    first_name = models.CharField(max_length=200)
+    last_name = models.CharField(max_length=200)
+    email_address = models.EmailField();
     
     def __str__(self):
-        return self.name
+        return self.first_name + " " + self.last_name
+
+    def name(self):
+        return self.first_name + " " + self.last_name
+        
+class TournamentParticipant(models.Model):
+    tournament = models.ForeignKey('Tournament', on_delete=models.CASCADE)
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    dropped = models.BooleanField(default=False)
+    dropped_in_round = models.PositiveSmallIntegerField()
+    
+    def __str__(self):
+        return self.player.name()
+
+    def name(self):
+        return self.player.name()
+        
+class TournamentParticipantOpponent(models.Model):
+    current_player = models.ForeignKey(TournamentParticipant, related_name='current_player', on_delete=models.CASCADE)
+    opponent_player = models.ForeignKey(TournamentParticipant, related_name='opponent_player', on_delete=models.CASCADE)
+    round_number = models.PositiveSmallIntegerField()
 
 class Team(models.Model):
     players = models.ManyToManyField(Player)
@@ -37,7 +59,7 @@ class Tournament(PolymorphicModel):
         return self.title
         
 class SinglePlayerTournament(Tournament):
-    players = models.ManyToManyField(Player, blank=True)
+    players = models.ManyToManyField(TournamentParticipant, blank=True)
     
 class TeamTournament(Tournament):
     team_size = models.SmallIntegerField()
@@ -57,7 +79,7 @@ class Seating(PolymorphicModel):
     winner = models.BooleanField(default=False)
     
 class SinglePlayerSeating(Seating):
-    player = models.ForeignKey(Player, blank=True)
+    player = models.ForeignKey(TournamentParticipant, blank=True)
 
 class TeamSeating(Seating):
     team = models.ForeignKey(Team, blank=True)

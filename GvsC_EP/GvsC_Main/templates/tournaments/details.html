@@ -5,150 +5,246 @@
 
 {% block head %}
 
-<style type="text/css">
-	.masthead.segment {
-      padding: 1em 0em;
-    }
-    .masthead .logo.item img {
-      margin-right: 1em;
-    }
-    .masthead .ui.menu .ui.button {
-      margin-left: 0.5em;
-    }
-    .masthead h2 {
-      font-size: 1.7em;
-      font-weight: normal;
-    }
-	.inline_header {
-		display: inline-block;
-	}
-</style>
+    <style type="text/css">
+        .masthead.segment {
+            padding: 1em 0;
+        }
+
+        .masthead .logo.item img {
+            margin-right: 1em;
+        }
+
+        .masthead h2 {
+            font-size: 1.7em;
+            font-weight: normal;
+        }
+
+        .player_list ul {
+
+            padding-left: 0;
+        }
+
+        .player_list.small {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .player_list li {
+            display: inline-block;
+        }
+
+        .player_list .uid {
+            color: #0f0f10;
+        }
+    </style>
 
 {% endblock head %}
 
 {% block main_content %}
-<div style="margin-top:3.5em;">
-	<div class="ui inverted vertical masthead segment">
-		<div class="ui container">
-			<div class="ui items">
-				<div class="item">
-					<div class="ui small image">
-						<img src="{% static 'GvsC_Main/rsz_1gvc_logo.png' %}">
-					</div>
-					<div class="middle aligned content">
-						<h3 class="ui huge header GvsC_white">
-							{{ tournament.title }}
-						</h3>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-<div class="ui middle aligned container" style="margin-top:1em;">
-	<div class="ui segment">
-		<h3 class="ui centered header">
-			<div class="content">
-				{{ tournament.game_plugin.title }}
-			</div>
-		</h3>
-		<div class="ui equal width grid">
-			<div class="equal width row">
-				<div class="column">
-					<h4>Registration:</h4> {{ tournament.registration_start }}
-				</div>
-				<div class="column">
-					<h4>Round One:</h4> {{ tournament.registration_start }}
-				</div>
-			</div>
-		</div>
-		<h3 class="ui left aligned header">
-			<div class="content">
-				Description:
-			</div>
-		</h3>
-		<div class="ui left aligned container">
-			{{ tournament.description }}
-		</div>
-	</div>
-	<div class="ui pointing menu">
-        
-		<a class="{{ pairings_active|yesno:' ,active' }} green item" data-tab="standings"> Standings </a>
-		<a class="{{ pairings_active|yesno:'active, ' }} blue item" data-tab="pairings"> Pairings </a>
-		{% if request.user.is_authenticated == True %}
-			{% if request.user.is_staff == True %}
-				<a class="red item" data-tab="manage"> Manage </a>
-			{% endif %}
-		{% endif %}
-	</div>
-	<div class="{{ pairings_active|yesno:' ,active' }} ui tab segment" data-tab="standings">
-		{% render_standings_table tournament %}
-	</div>
-	<div class="{{ pairings_active|yesno:'active, ' }} ui tab segment" data-tab="pairings">
-		<!-- Start next round button - Finish tournament button -->
+    <div style="margin-top:3.5em;">
+        <div class="ui inverted vertical masthead segment">
+            <div class="ui container">
+                <div class="ui items">
+                    <div class="item">
+                        <div class="ui small image">
+                            <img src="{% static 'GvsC_Main/rsz_1gvc_logo.png' %}">
+                        </div>
+                        <div class="middle aligned content">
+                            <h3 class="ui huge header GvsC_white">
+                                {{ tournament.title }}
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="ui middle aligned container" style="margin-top:1em;">
+        <div class="ui segment">
+            <h3 class="ui centered header">
+                {{ tournament.game_plugin.title }}
+            </h3>
+            <div class="ui equal width grid">
+                <div class="equal width row">
+                    <div class="column">
+                        <h4>Registration:</h4> {{ tournament.registration_start }}
+                    </div>
+                    <div class="column">
+                        <h4>Round One:</h4> {{ tournament.registration_start }}
+                    </div>
+                </div>
+            </div>
+            <h3 class="ui left aligned header">
+                Description:
+            </h3>
+            <div class="ui left aligned container">
+                {{ tournament.description }}
+            </div>
+        </div>
+        <div class="ui pointing menu">
+            <a class="{% ifequal active_tab "standings" %} active {% endifequal %}green item" data-tab="standings">
+                Standings </a>
+            <a class="{% ifequal active_tab "pairings" %} active {% endifequal %}blue item" data-tab="pairings">
+                Pairings </a>
+            {% if request.user.is_authenticated == True %}
+                {% if request.user.is_staff == True %}
+                    <a class="{% ifequal active_tab "manage" %} active {% endifequal %}red item" data-tab="manage">
+                        Manage </a>
+                {% endif %}
+            {% endif %}
+        </div>
+        <div class="{% ifequal active_tab "standings" %} active {% endifequal %} ui tab segment" data-tab="standings">
+            {% render_standings_table tournament %}
+        </div>
+        <div class="{% ifequal active_tab "pairings" %} active {% endifequal %} ui tab segment" data-tab="pairings">
+            <!-- Start next round button - Finish tournament button -->
+            {% if request.user.is_authenticated == True %}
+                {% if request.user.is_staff == True %}
+                    <div class="ui segment">
+                        <div id="next_round" class="ui primary button" data-tournament_id="{{ tournament.pk }}">Create
+                            Next Round
+                        </div>
+                        <div class="ui hidden negative message">
+                            <i class="close icon"></i>
+                            <div class="header">
+                                Error
+                            </div>
+                            <p id="error_message">This is a special notification which you can dismiss if you're bored
+                                with it.</p>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+            <!-- Currently running round -->
+            <!-- last completed round (editable) -->
+            <!-- round history -->
+            <div id="round_container">
+                {% include "tournaments/round_table.html" %}
+            </div>
+
+        </div>
         {% if request.user.is_authenticated == True %}
             {% if request.user.is_staff == True %}
-                <div class="ui segment">
-                    <div id="next_round" class="ui primary button" data-tournament_id="{{tournament.pk}}">Create Next Round</div>
-                    <div class="ui hidden negative message">
-                        <i class="close icon"></i>
-                        <div class="header">
-                            Error
+                <div class="{% ifequal active_tab "manage" %} active {% endifequal %}ui tab segment" data-tab="manage">
+                    <div class="ui top attached header">
+                        <div class="content">
+                            Enrolled Players
+                            <div class="sub header">{{ tournament.tournamentparticipant_set.all|length }}/{{ tournament.player_limit }} players enrolled</div>
                         </div>
-                        <p id="error_message">This is a special notification which you can dismiss if you're bored with it.</p>
+                    </div>
+                    <div class="ui attached segment player_list">
+                        <ul class="list">
+                            {% for participant in tournament.tournamentparticipant_set.all %}
+                                <li>{% include "tournaments\enrolled_player_snippet.html" with participant=participant tournament=tournament number=forloop.counter %}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="ui divider"></div>
+                    <div id="searchable">
+                        <div class="ui segment">
+                            <div class="ui fluid labeled icon input">
+                                <div class="ui label">
+                                    Search Players
+                                </div>
+                                <input class="search" type="text" placeholder="Name, UID or Email">
+                                <i class="search icon"></i>
+                            </div>
+                            <div class="player_list small">
+                                <ul class="list">
+                                    {% for player in not_enrolled_players %}
+                                        <li>{% include "tournaments\player_box.html" with player=player tournament=tournament number=forloop.counter %}</li>
+                                    {% endfor %}
+                                </ul>
+                            <div>
+                        </div>
+                    </div>
+                    <div class="ui divider"></div>
+                    <div class="ui fluid primary button" onclick="$('#enroll_new_player').modal('show');">Enroll New Player
                     </div>
                 </div>
             {% endif %}
         {% endif %}
-		<!-- Currently running round -->
-		<!-- last completed round (editable) -->
-		<!-- round history -->
-		<div id="round_container">
-			{% include "tournaments/round_table.html" %}
-		</div>
-		
-	</div>
-	{% if request.user.is_authenticated == True %}
-		{% if request.user.is_staff == True %}
-			<div class="ui tab segment" data-tab="manage">
-				Shh
-			</div>
-		{% endif %}
-	{% endif %}
-</div>
+    </div>
+
+    <div class="ui modal" id="enroll_new_player">
+        <i class="close icon"></i>
+        <div class="header">
+            Enroll New Player
+        </div>
+        <div class="content">
+            <form class="ui form" method="post" id="enroll_new_player_form"
+                  action="/tournaments/{{ tournament.pk }}/enroll_new_player/">
+                {% csrf_token %}
+                <input type="hidden" name="tournament_id" value={{ tournament.pk }}>
+                <div class="field">
+                    <label>Name</label>
+                    <div class="two fields">
+                        <div class="required field">
+                            <input type="text" name="first_name" placeholder="First Name">
+                        </div>
+                        <div class="required field">
+                            <input type="text" name="last_name" placeholder="Last Name">
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>E-Mail Address</label>
+                    <input type="email" name="email" placeholder="E-Mail address">
+                </div>
+            </form>
+        </div>
+        <div class="actions">
+            <div class="ui cancel button">Cancel</div>
+            <input type="submit" value="Enroll Player" form="enroll_new_player_form" class="ui primary button">
+        </div>
+    </div>
+
 {% endblock main_content %}
 
 {% block javascript_includes %}
-<script>
-$.fn.api.settings.api = {
-  'start next round' : '/tournaments/{tournament_id}/next_round',
-};
-$("#next_round").api({
-action: 'start next round',
-onSuccess: function(response) {
-      // valid response and response.success = true
-      if (response.hasOwnProperty('error'))
-      {
-        $("#error_message").html(response.error);
-        $("#error_message").closest('.message').removeClass('hidden');
-      }
-      else
-      {
-        document.getElementById("round_container").innerHTML = response.html;
-        $("#error_message").closest('.message').addClass('hidden');
-      }
-    },
-});
-$(".ui.pointing.menu .item").tab({history:false});
-$('.ui.modal').modal();
-$('.ui.dropdown').dropdown();
-$('.message .close')
-  .on('click', function() {
-    $(this)
-      .closest('.message')
-      .transition('fade')
-    ;
-  })
-;
-</script>
+    <script>
+        {#        This is the stuff that makes the search magically work.#}
+        var options = {
+            valueNames: ['name', 'uid', 'user_name']
+        };
+        var player_list = new List('searchable', options);
+    </script>
+    <script>
+        function EnrollPlayer(pPlayerID, pTournamentID) {
+            $.redirect('/tournaments/' + pTournamentID + '/enroll_player/', {
+                player_id: pPlayerID,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            });
+        }
+    </script>
+    <script>
+        $.fn.api.settings.api = {
+            'start next round': '/tournaments/{tournament_id}/next_round'
+        };
+        $("#next_round").api({
+            action: 'start next round',
+            onSuccess: function (response) {
+                // valid response and response.success = true
+                if (response.hasOwnProperty('error')) {
+                    var error_message = $("#error_message");
+                    error_message.html(response.error);
+                    error_message.closest('.message').removeClass('hidden');
+                }
+                else {
+                    document.getElementById("round_container").innerHTML = response.html;
+                    $("#error_message").closest('.message').addClass('hidden');
+                }
+            }
+        });
+        $(".ui.pointing.menu .item").tab({history: false});
+        $('.ui.modal').modal();
+        $('.ui.dropdown').dropdown();
+        $('.message .close')
+                .on('click', function () {
+                    $(this)
+                            .closest('.message')
+                            .transition('fade')
+                    ;
+                });
+    </script>
 {% endblock javascript_includes %}
