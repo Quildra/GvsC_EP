@@ -111,7 +111,7 @@ def tournaments_next_round(request, tournament_id):
 
                 return HttpResponse(json.dumps({'error': mark_safe(error)}), content_type="application/json")
 
-        player_count = tournament.tournamentparticipant_set.count()
+        player_count = tournament.tournamentparticipant_set.filter(dropped=False).count()
         needs_a_bye = player_count % 2 == 1
         num_matches = int(player_count * 0.5)
 

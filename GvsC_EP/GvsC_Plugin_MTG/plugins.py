@@ -28,7 +28,7 @@ class MTG_GamePlugin(GamePluginPoint):
             matches_played += 1
         
         if matches_played > 0:
-            return max(100 * float(matches_won) / float(matches_played), 33.3)
+            return 100 * float(matches_won) / float(matches_played)
         else:
             return 0.0
 
@@ -48,42 +48,42 @@ class MTG_GamePlugin(GamePluginPoint):
                 games_played += seating.score
         
         if games_played > 0:
-            return max(100 * float(games_won) / float(games_played), 33.3)
+            return 100 * float(games_won) / float(games_played)
         else:
             return 0.0
     
     def _calcualte_player_stats(self, participant, tournament):
-        
-        player = {}
-        player['name'] = participant.name()
-        player['wins'] = 0
-        player['draws'] = 0
-        player['losses'] = 0
-        player['byes'] = 0
-        player['match_points'] = 0
-        player['match_win_percent'] = 0.0
-        player['opp_match_win_percent'] = 0
-        player['game_win_percent'] = 0
-        player['opp_game_win_percent'] = 0
-        player['player'] = participant
+
+        participant_stats = {}
+        participant_stats['name'] = participant.name()
+        participant_stats['wins'] = 0
+        participant_stats['draws'] = 0
+        participant_stats['losses'] = 0
+        participant_stats['byes'] = 0
+        participant_stats['match_points'] = 0
+        participant_stats['match_win_percent'] = 0.0
+        participant_stats['opp_match_win_percent'] = 0
+        participant_stats['game_win_percent'] = 0
+        participant_stats['opp_game_win_percent'] = 0
+        participant_stats['player'] = participant
 
         opponents = []
-        for match_up in TournamentParticipantOpponent.objects.filter(current_player=player['player']):
+        for match_up in TournamentParticipantOpponent.objects.filter(current_player=participant_stats['player']):
             opponents.append(match_up.opponent_player)
 
         for seating in Seating.objects.filter(singleplayerseating__player=participant, match__tournament=tournament):
             if seating.match.is_bye:
-                player['byes'] += 1
-                player['wins'] += 1
+                participant_stats['byes'] += 1
+                participant_stats['wins'] += 1
             elif seating.result_option == self.RESULT_WIN:
-                player['wins'] += 1
+                participant_stats['wins'] += 1
             elif seating.result_option == self.RESULT_LOSS:
-                player['losses'] += 1
+                participant_stats['losses'] += 1
             elif seating.result_option == self.RESULT_DRAW:
-                player['draws'] += 1
+                participant_stats['draws'] += 1
 
-        player['match_win_percent'] = self._calculate_player_match_win_percentage(participant, tournament)
-        player['game_win_percent'] = self._calculate_player_game_win_percentage(participant, tournament)
+        participant_stats['match_win_percent'] = self._calculate_player_match_win_percentage(participant, tournament)
+        participant_stats['game_win_percent'] = self._calculate_player_game_win_percentage(participant, tournament)
         
         opponents_match_win = []
         opponents_game_win = []
@@ -92,66 +92,47 @@ class MTG_GamePlugin(GamePluginPoint):
             opponents_game_win.append(self._calculate_player_game_win_percentage(opponent, tournament))
             
         if len(opponents_match_win) > 0:
-            player['opp_match_win_percent'] = sum(opponents_match_win) / float(len(opponents_match_win))
+            participant_stats['opp_match_win_percent'] = sum(opponents_match_win) / float(len(opponents_match_win))
             
         if len(opponents_game_win) > 0:
-            player['opp_game_win_percent'] = sum(opponents_game_win) / float(len(opponents_game_win))
+            participant_stats['opp_game_win_percent'] = sum(opponents_game_win) / float(len(opponents_game_win))
                 
-        return player
+        return participant_stats
 
-    def GenerateStandingsTable(self, tournament):
+    def generate_standings_table(self, tournament, request):
         single_player_tournament = hasattr(tournament, 'players')
-        players = []
+        participants = []
         if single_player_tournament:
-            for i, player in enumerate(tournament.tournamentparticipant_set.all()):
+            for i, participant in enumerate(tournament.tournamentparticipant_set.all()):
                 # Calculate the points and tie breakers for each player
                 # store them locally to be sorted.
-                players.append(self._calcualte_player_stats(player, tournament))
+                participants.append(self._calcualte_player_stats(participant, tournament))
                 
         # Sort the players
-        players.sort(key = lambda player: (player['wins'], player['draws'], player['losses'],player['match_points'], player['opp_match_win_percent'], player['game_win_percent'], player['opp_game_win_percent'], player['byes']), reverse=True)
+        participants.sort(key = lambda participant: (participant['wins'], participant['draws'], participant['losses'], participant['match_points'], participant['opp_match_win_percent'], participant['game_win_percent'], participant['opp_game_win_percent'], participant['byes']), reverse=True)
         
         #for player in players:
         #    print(player['name'] + " Wins: " + str(player['wins']) + " Draws: " + str(player['draws']) + " Losses: " + str(player['losses']))
-        
-        table_string = ''
-        table_string += '<table class="ui celled padded table">\r\n'
-        table_string += '\t<thead>\r\n'
-        table_string += '\t\t<tr>\r\n'
-        table_string += '\t\t\t<th>Place</th>\r\n'
-        table_string += '\t\t\t<th>Name</th>\r\n'
-        table_string += '\t\t\t<th>Match Points</th>\r\n'
-        table_string += '\t\t</tr>\r\n'
-        table_string += '\t</thead>\r\n'
-        table_string += '\t<tbody>\r\n'
-        if single_player_tournament:
-            # Report the players in sorted order.
-            for i, player in enumerate(players):
-                table_string += '\t\t<tr>\r\n'
-                table_string += '\t\t\t<td>' + str(i+1) + '</td>\r\n'
-                table_string += '\t\t\t<td>' + player['name'] + '</td>\r\n'
-                table_string += '\t\t\t<td>' + str(player['match_points']) + '</td>\r\n'
-                table_string += '\t\t</tr>\r\n'
 
-        table_string += '\t</tbody>\r\n'
-        table_string += '</table>\r\n'
-        return table_string
+        html = render_to_string('MTG_Standings_Table.html', {'participants': participants}, request=request)
+        return html
         
     def PairRound(self, pTournament):
         single_player_tournament = hasattr(pTournament, 'players')
-        players = []
+        participants = []
         if single_player_tournament:
-            for i, player in enumerate(pTournament.tournamentparticipant_set.all()):
+            for i, participant in enumerate(pTournament.tournamentparticipant_set.all()):
                 # Calculate the points and tie breakers for each player
                 # store them locally to be sorted.
-                players.append(self._CalcualtePlayerStats(player, pTournament))
+                if not participant.dropped:
+                    participants.append(self._calcualte_player_stats(participant, pTournament))
                 
         # Sort the players
         pairings = []        
         groups = []
         uniquekeys = []
-        data = sorted(players, key=lambda player: (player['wins'], player['draws'], player['losses'], player['byes']), reverse=True)
-        for k, g in groupby(data, lambda player: (player['wins'], player['draws'], player['losses'])):
+        data = sorted(participants, key=lambda participant: (participant['wins'], participant['draws'], participant['losses'], participant['byes']), reverse=True)
+        for k, g in groupby(data, lambda participant: (participant['wins'], participant['draws'], participant['losses'])):
             groups.append(list(g))
             uniquekeys.append(k)
             
@@ -159,19 +140,36 @@ class MTG_GamePlugin(GamePluginPoint):
         
         for i, group in enumerate(groups):
             while len(group) > 1:
-                player_1_index = 0
-                player_2_index = randint(1,len(group)-1)
-                player_1 = group[player_1_index]
-                player_2 = group[player_2_index]
-                
-                output = str(player_1) + " Vs " + str(player_2)
+                participant_1_index = 0
+                participant_1 = group[participant_1_index]
+                group.remove(participant_1)
+                # Make a group of possible opponents from the current group of players
+                possible_opponents = list(group)
+                possible_opponent_group = i
+                while True:
+                    # Loop through the list
+                    for possible in possible_opponents:
+                        # See if they are in my opponents list.
+                        if TournamentParticipantOpponent.objects.filter(current_player=participant_1['player'], opponent_player=possible['player']).count() > 0:
+                            possible_opponents.remove(possible)
 
-                pairings.append([player_1, player_2])
+                    if len(possible_opponents) > 0:
+                        break;
+                    else:
+                        possible_opponent_group += 1
+                        possible_opponents = list(groups[possible_opponent_group])
+
+                participant_2_index = randint(0,len(possible_opponents)-1)
+                participant_2 = groups[possible_opponent_group][participant_2_index]
+
+                output = str(participant_1) + " Vs " + str(participant_2)
+
+                pairings.append([participant_1, participant_2])
                 
-                group.remove(player_1)
-                group.remove(player_2)
+
+                groups[possible_opponent_group].remove(participant_2)
             
-            if len(group) == 1 and i+1 > len(groups):
+            if len(group) == 1 and i+1 < len(groups):
                 groups[i+1].insert(0, group[0])
                 group.remove(group[0])
             elif len(group) == 1:

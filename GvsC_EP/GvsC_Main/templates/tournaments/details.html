@@ -94,7 +94,7 @@
             {% endif %}
         </div>
         <div class="{% ifequal active_tab "standings" %} active {% endifequal %} ui tab segment" data-tab="standings">
-            {% render_standings_table tournament %}
+            {% render_standings_table tournament request%}
         </div>
         <div class="{% ifequal active_tab "pairings" %} active {% endifequal %} ui tab segment" data-tab="pairings">
             <!-- Start next round button - Finish tournament button -->
