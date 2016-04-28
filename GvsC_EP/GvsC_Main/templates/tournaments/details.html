@@ -135,7 +135,7 @@
                     <div class="ui attached segment player_list">
                         <ul class="list">
                             {% for participant in tournament.tournamentparticipant_set.all %}
-                                <li>{% include "tournaments\enrolled_player_snippet.html" with participant=participant tournament=tournament number=forloop.counter %}</li>
+                                <li>{% include "tournaments/enrolled_player_snippet.html" with participant=participant tournament=tournament number=forloop.counter %}</li>
                             {% endfor %}
                         </ul>
                     </div>
@@ -152,7 +152,7 @@
                             <div class="player_list small">
                                 <ul class="list">
                                     {% for player in not_enrolled_players %}
-                                        <li>{% include "tournaments\player_box.html" with player=player tournament=tournament number=forloop.counter %}</li>
+                                        <li>{% include "tournaments/player_box.html" with player=player tournament=tournament number=forloop.counter %}</li>
                                     {% endfor %}
                                 </ul>
                             <div>
