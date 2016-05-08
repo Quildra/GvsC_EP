@@ -201,7 +201,7 @@ class MTG_GamePlugin(GamePluginPoint):
                 
         return GvsC_Main.errors.ERROR_OK, pairings
         
-    def GeneratePairingsTable(self, pTournament, pRoundNumber, pRequest):
+    def generate_pairings_table(self, pTournament, pRoundNumber, pRequest):
         single_player_tournament = hasattr(pTournament, 'players')
         
         html = render_to_string('MTG_Pairings_Table.html', {'tournament': pTournament, 'matches':pTournament.match_set.filter(round_number__iexact=pRoundNumber)}, request=pRequest)
