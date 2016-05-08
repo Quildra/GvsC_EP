@@ -5,6 +5,7 @@ from itertools import groupby
 
 from GvsC_Main.plugins import GamePluginPoint
 from GvsC_Main.models import Seating, TournamentParticipantOpponent
+import GvsC_Main.errors
 
 
 class MTG_GamePlugin(GamePluginPoint):
@@ -157,6 +158,9 @@ class MTG_GamePlugin(GamePluginPoint):
                         break;
                     else:
                         possible_opponent_group += 1
+                        num_groups = len(groups)
+                        if possible_opponent_group >= num_groups:
+                            return GvsC_Main.errors.ERROR_NO_VIABLE_MATCHES, None
                         possible_opponents = list(groups[possible_opponent_group])
 
                 participant_2_index = randint(0,len(possible_opponents)-1)
@@ -175,7 +179,7 @@ class MTG_GamePlugin(GamePluginPoint):
             elif len(group) == 1:
                 pairings.append([group[0], None])
                 
-        return pairings
+        return GvsC_Main.errors.ERROR_OK, pairings
         
     def GeneratePairingsTable(self, pTournament, pRoundNumber, pRequest):
         single_player_tournament = hasattr(pTournament, 'players')

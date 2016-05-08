@@ -8,6 +8,7 @@ import json
 import urllib.parse
 
 from .models import Event, Tournament, Match, SinglePlayerSeating, Player, TournamentParticipant, TournamentParticipantOpponent
+import GvsC_Main.errors
 
 
 def index(request):
@@ -105,7 +106,7 @@ def tournaments_next_round(request, tournament_id):
                     unfinished_matches.append(match)
 
             if not all_matches_complete:
-                error = 'Not all matches complete. The following matches still need results submitted: <br>'
+                error = GvsC_Main.errors.error_lookup(GvsC_Main.errors.ERROR_NOT_ALL_RESULTS_IN)
                 for match in unfinished_matches:
                     error += match.seating_set.first().player.player.name() + ' Vs ' + match.seating_set.last().player.player.name() + '<br>'
 
@@ -116,7 +117,10 @@ def tournaments_next_round(request, tournament_id):
         num_matches = int(player_count * 0.5)
 
         plugin = tournament.game_plugin.get_plugin()
-        pairings = plugin.PairRound(tournament)
+        ret, pairings = plugin.PairRound(tournament)
+
+        if ret != GvsC_Main.errors.ERROR_OK:
+            return HttpResponse(json.dumps({'error': mark_safe(GvsC_Main.errors.error_lookup(ret))}), content_type="application/json")
 
         for i in range(num_matches):
             new_match = Match.objects.create(round_number=next_round_number, tournament=tournament, table_number=i,
