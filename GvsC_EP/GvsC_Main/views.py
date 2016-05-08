@@ -93,6 +93,8 @@ def tournaments_next_round(request, tournament_id):
             html = render_to_string('tournaments/round_table.html', {'tournament': tournament})
             return HttpResponse(json.dumps({'html': mark_safe(html)}), content_type="application/json")
 
+        game_system_plugin = tournament.game_plugin.get_plugin()
+
         current_round_number = tournament.get_current_round()
         next_round_number = current_round_number + 1
 
@@ -116,8 +118,8 @@ def tournaments_next_round(request, tournament_id):
         needs_a_bye = player_count % 2 == 1
         num_matches = int(player_count * 0.5)
 
-        plugin = tournament.game_plugin.get_plugin()
-        ret, pairings = plugin.PairRound(tournament)
+
+        ret, pairings = game_system_plugin.PairRound(tournament)
 
         if ret != GvsC_Main.errors.ERROR_OK:
             return HttpResponse(json.dumps({'error': mark_safe(GvsC_Main.errors.error_lookup(ret))}), content_type="application/json")
@@ -145,10 +147,11 @@ def tournaments_next_round(request, tournament_id):
 
         tournament.current_round_number = next_round_number
 
-        html = render_to_string('tournaments/round_table.html',
+        pairings_html = render_to_string('tournaments/round_table.html',
                                 {'tournament': tournament, 'num_rounds': next_round_number, "needs_a_bye": needs_a_bye,
                                  "num_matches": num_matches, 'request': request})
-        return HttpResponse(json.dumps({'html': mark_safe(html)}), content_type="application/json")
+        standings_html = game_system_plugin.generate_standings_table( tournament, request )
+        return HttpResponse(json.dumps({'pairings_html': mark_safe(pairings_html), 'standings_html' : mark_safe(standings_html) }), content_type="application/json")
     print("Not AJAX")
 
 
