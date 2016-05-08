@@ -8,6 +8,7 @@ import json
 import urllib.parse
 
 from .models import Event, Tournament, Match, SinglePlayerSeating, Player, TournamentParticipant, TournamentParticipantOpponent
+import GvsC_Main.errors
 
 
 def index(request):
@@ -92,6 +93,8 @@ def tournaments_next_round(request, tournament_id):
             html = render_to_string('tournaments/round_table.html', {'tournament': tournament})
             return HttpResponse(json.dumps({'html': mark_safe(html)}), content_type="application/json")
 
+        game_system_plugin = tournament.game_plugin.get_plugin()
+
         current_round_number = tournament.get_current_round()
         next_round_number = current_round_number + 1
 
@@ -105,18 +108,21 @@ def tournaments_next_round(request, tournament_id):
                     unfinished_matches.append(match)
 
             if not all_matches_complete:
-                error = 'Not all matches complete. The following matches still need results submitted: <br>'
+                error = GvsC_Main.errors.error_lookup(GvsC_Main.errors.ERROR_NOT_ALL_RESULTS_IN)
                 for match in unfinished_matches:
                     error += match.seating_set.first().player.player.name() + ' Vs ' + match.seating_set.last().player.player.name() + '<br>'
 
                 return HttpResponse(json.dumps({'error': mark_safe(error)}), content_type="application/json")
 
-        player_count = tournament.tournamentparticipant_set.count()
+        player_count = tournament.tournamentparticipant_set.filter(dropped=False).count()
         needs_a_bye = player_count % 2 == 1
         num_matches = int(player_count * 0.5)
 
-        plugin = tournament.game_plugin.get_plugin()
-        pairings = plugin.PairRound(tournament)
+
+        ret, pairings = game_system_plugin.PairRound(tournament)
+
+        if ret != GvsC_Main.errors.ERROR_OK:
+            return HttpResponse(json.dumps({'error': mark_safe(GvsC_Main.errors.error_lookup(ret))}), content_type="application/json")
 
         for i in range(num_matches):
             new_match = Match.objects.create(round_number=next_round_number, tournament=tournament, table_number=i,
@@ -141,10 +147,11 @@ def tournaments_next_round(request, tournament_id):
 
         tournament.current_round_number = next_round_number
 
-        html = render_to_string('tournaments/round_table.html',
+        pairings_html = render_to_string('tournaments/round_table.html',
                                 {'tournament': tournament, 'num_rounds': next_round_number, "needs_a_bye": needs_a_bye,
                                  "num_matches": num_matches, 'request': request})
-        return HttpResponse(json.dumps({'html': mark_safe(html)}), content_type="application/json")
+        standings_html = game_system_plugin.generate_standings_table( tournament, request )
+        return HttpResponse(json.dumps({'pairings_html': mark_safe(pairings_html), 'standings_html' : mark_safe(standings_html) }), content_type="application/json")
     print("Not AJAX")
 
 

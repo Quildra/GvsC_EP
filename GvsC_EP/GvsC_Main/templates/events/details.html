@@ -105,40 +105,40 @@
 					</div>
 				</div>
 			</div>
-			{% for i in forloop.counter|loop_to_multipule:3 %}
-				<div class="card">
-					<div class="content">
-						<h2 class="ui centered header">
-							<div class="content">
-								Sponser Advert here?
-							</div>
-						</h2>
-						<h3 class="ui centered header">
-							<div class="content">
-								{{ tournament.game_plugin.title }}
-							</div>
-						</h3>
-						<div class="ui equal width grid">
-							<div class="equal width row">
-								<div class="column">
-									<h4>Registration:</h4> {{ tournament.registration_start }}
-								</div>
-								<div class="column">
-									<h4>Round One:</h4> {{ tournament.registration_start }}
-								</div>
-							</div>
-						</div>
-						<h4 class="ui left aligned header">
-							<div class="content">
-								Description:
-							</div>
-						</h4>
-						<div class="ui left aligned container" style="max-height: 5em; overflow-y:hidden;">
-							If you would like to host an event under the Gaming vs Cancer banner please contact us!
-						</div>
-					</div>
-				</div>
-			{% endfor %}
+{#			{% for i in forloop.counter|loop_to_multipule:3 %}#}
+{#				<div class="card">#}
+{#					<div class="content">#}
+{#						<h2 class="ui centered header">#}
+{#							<div class="content">#}
+{#								Sponser Advert here?#}
+{#							</div>#}
+{#						</h2>#}
+{#						<h3 class="ui centered header">#}
+{#							<div class="content">#}
+{#								{{ tournament.game_plugin.title }}#}
+{#							</div>#}
+{#						</h3>#}
+{#						<div class="ui equal width grid">#}
+{#							<div class="equal width row">#}
+{#								<div class="column">#}
+{#									<h4>Registration:</h4> {{ tournament.registration_start }}#}
+{#								</div>#}
+{#								<div class="column">#}
+{#									<h4>Round One:</h4> {{ tournament.registration_start }}#}
+{#								</div>#}
+{#							</div>#}
+{#						</div>#}
+{#						<h4 class="ui left aligned header">#}
+{#							<div class="content">#}
+{#								Description:#}
+{#							</div>#}
+{#						</h4>#}
+{#						<div class="ui left aligned container" style="max-height: 5em; overflow-y:hidden;">#}
+{#							If you would like to host an event under the Gaming vs Cancer banner please contact us!#}
+{#						</div>#}
+{#					</div>#}
+{#				</div>#}
+{#			{% endfor %}#}
 		{% empty %}
 			No tournaments currently schedualed, check back later. 
 		{% endfor %}

@@ -94,7 +94,7 @@
             {% endif %}
         </div>
         <div class="{% ifequal active_tab "standings" %} active {% endifequal %} ui tab segment" data-tab="standings">
-            {% render_standings_table tournament %}
+            {% render_standings_table tournament request%}
         </div>
         <div class="{% ifequal active_tab "pairings" %} active {% endifequal %} ui tab segment" data-tab="pairings">
             <!-- Start next round button - Finish tournament button -->
@@ -230,6 +230,13 @@
         }
     </script>
     <script>
+        function register_semantic_components() {
+            $(".ui.pointing.menu .item").tab({history: false});
+            $('.ui.modal').modal();
+            $('.ui.dropdown').dropdown();
+        }
+    </script>
+    <script>
         $.fn.api.settings.api = {
             'start next round': '/tournaments/{tournament_id}/next_round'
         };
@@ -243,14 +250,13 @@
                     error_message.closest('.message').removeClass('hidden');
                 }
                 else {
-                    document.getElementById("round_container").innerHTML = response.html;
+                    document.getElementById("round_container").innerHTML = response.pairings_html;
                     $("#error_message").closest('.message').addClass('hidden');
+                    register_semantic_components();
                 }
             }
         });
-        $(".ui.pointing.menu .item").tab({history: false});
-        $('.ui.modal').modal();
-        $('.ui.dropdown').dropdown();
+        register_semantic_components();
         $('.message .close')
                 .on('click', function () {
                     $(this)
