@@ -230,6 +230,13 @@
         }
     </script>
     <script>
+        function register_semantic_components() {
+            $(".ui.pointing.menu .item").tab({history: false});
+            $('.ui.modal').modal();
+            $('.ui.dropdown').dropdown();
+        }
+    </script>
+    <script>
         $.fn.api.settings.api = {
             'start next round': '/tournaments/{tournament_id}/next_round'
         };
@@ -245,12 +252,11 @@
                 else {
                     document.getElementById("round_container").innerHTML = response.pairings_html;
                     $("#error_message").closest('.message').addClass('hidden');
+                    register_semantic_components();
                 }
             }
         });
-        $(".ui.pointing.menu .item").tab({history: false});
-        $('.ui.modal').modal();
-        $('.ui.dropdown').dropdown();
+        register_semantic_components();
         $('.message .close')
                 .on('click', function () {
                     $(this)
