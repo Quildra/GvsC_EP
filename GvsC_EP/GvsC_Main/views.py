@@ -40,6 +40,41 @@ def tournaments_index(request):
     return render(request, 'tournaments/index.html', context)
 
 
+def tournaments_pairings(request, tournament_id):
+    tournament = get_object_or_404(Tournament, pk=tournament_id)
+    num_rounds = 0
+    rounds = {}
+    matches = tournament.match_set.all().prefetch_related('seating_set__player__player')
+    for match in matches:
+        round = match.round_number
+        if not rounds.get(round):
+            rounds[round] = []
+        seatings = match.seating_set.all()
+        match.first = seatings[0]
+        if not match.is_bye:
+            match.second = seatings[1]
+        rounds[round].append(match)
+
+        if round > num_rounds:
+            num_rounds = round
+
+    return render(request, 'tournaments/pairings.html', {'request': request, 'tournament': tournament, 'num_rounds': num_rounds, 'rounds': rounds})
+
+
+def tournaments_manage(request, tournament_id):
+    tournament = get_object_or_404(Tournament, pk=tournament_id)
+
+    enrolled_players_pks = []
+    enrolled_players = []
+    for participant in tournament.tournamentparticipant_set.all().prefetch_related('player'):
+        enrolled_players_pks.append(participant.player.pk)
+        enrolled_players.append(participant)
+    not_enrolled_players = Player.objects.exclude(pk__in=enrolled_players_pks)
+    current_round_number = tournament.get_current_round()
+
+    return render(request, 'tournaments/manage.html', {'tournament': tournament, 'not_enrolled_players': not_enrolled_players, 'enrolled_players': enrolled_players, 'current_round_number': current_round_number})
+
+
 def tournaments_details(request, tournament_id):
     tournament = get_object_or_404(Tournament, pk=tournament_id)
     num_rounds = tournament.match_set.all().aggregate(Max('round_number'))

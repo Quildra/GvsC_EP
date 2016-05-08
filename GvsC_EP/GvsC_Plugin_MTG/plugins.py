@@ -206,6 +206,12 @@ class MTG_GamePlugin(GamePluginPoint):
         
         html = render_to_string('MTG_Pairings_Table.html', {'tournament': pTournament, 'matches':pTournament.match_set.filter(round_number__iexact=pRoundNumber)}, request=pRequest)
         return html
+
+    def generate_pairings_round_table(self, tournament, round_matches, pRequest):
+        single_player_tournament = hasattr(tournament, 'players')
+
+        html = render_to_string('MTG_Pairings_Round_Table.html', {'tournament': tournament, 'matches': round_matches}, request=pRequest)
+        return html
         
     def DetermineWinner(self, pSeat0, pSeat1):
         # Result Options:

@@ -1,0 +1,80 @@
+{% extends "tournaments/tournament_base.html" %}
+{% load plugin_api %}
+{% load range_filter %}
+
+{%block content %}
+    <div class="ui pointing menu">
+        <a class="green item" href="/tournaments/{{ tournament.id }}/"> Standings </a>
+        <a class="blue item" href="/tournaments/{{ tournament.id }}/pairings"> Pairings </a>
+        {% if request.user.is_authenticated == True and request.user.is_staff == True %}
+            <a class="active red item" href="/tournaments/{{ tournament.id }}/manage"> Manage </a>
+        {% endif %}
+    </div>
+    <div class="active ui tab segment">
+        <div class="ui top attached header">
+            <div class="content">
+                Enrolled Players
+                <div class="sub header">{{ enrolled_players|length }}/{{ tournament.player_limit }} players enrolled</div>
+            </div>
+        </div>
+        <div class="ui attached segment player_list">
+            <ul class="list">
+                {% for participant in enrolled_players %}
+                    <li>{% include "tournaments/enrolled_player_snippet.html" with participant=participant tournament=tournament number=forloop.counter current_round_number=current_round_number %}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="ui divider"></div>
+        <div id="searchable">
+            <div class="ui segment">
+                <div class="ui fluid labeled icon input">
+                    <div class="ui label">
+                        Search Players
+                    </div>
+                    <input class="search" type="text" placeholder="Name, UID or Email">
+                    <i class="search icon"></i>
+                </div>
+                <div class="player_list small">
+                    <ul class="list">
+                        {% for player in not_enrolled_players %}
+                            <li>{% include "tournaments/player_box.html" with player=player tournament=tournament number=forloop.counter %}</li>
+                        {% endfor %}
+                    </ul>
+                <div>
+            </div>
+        </div>
+        <div class="ui divider"></div>
+        <div class="ui fluid primary button" onclick="$('#enroll_new_player').modal('show');">Enroll New Player
+        </div>
+    </div>
+{% endblock content %}
+
+{%block extra_javascript_includes %}
+    <script>
+        {#        This is the stuff that makes the search magically work.#}
+        var options = {
+            valueNames: ['name', 'uid', 'user_name']
+        };
+        var player_list = new List('searchable', options);
+    </script>
+    <script>
+        function EnrollPlayer(pPlayerID, pTournamentID) {
+            $.redirect('/tournaments/' + pTournamentID + '/enroll_player/', {
+                player_id: pPlayerID,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            });
+        }
+        function RemovePlayer(pParticipantID, pTournamentID) {
+            $.redirect('/tournaments/' + pTournamentID + '/remove_player/', {
+                participant_id: pParticipantID,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            });
+        }
+        function DropPlayer(pParticipantID, pTournamentID) {
+            $.redirect('/tournaments/' + pTournamentID + '/drop_player/', {
+                participant_id: pParticipantID,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            });
+        }
+    </script>
+{% endblock extra_javascript_includes %}

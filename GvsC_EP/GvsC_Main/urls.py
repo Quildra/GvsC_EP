@@ -11,6 +11,12 @@ urlpatterns = [
     url(r'^tournaments/$', views.tournaments_index, name='index'),
     # ex: /tournaments/5/
     url(r'^tournaments/(?P<tournament_id>[0-9]+)/$', views.tournaments_details, name='tournament_details'),
+    # ex: /tournaments/5/standings/
+    url(r'^tournaments/(?P<tournament_id>[0-9]+)/standings/$', views.tournaments_details, name='tournament_details'),
+    # ex: /tournaments/5/pairings/
+    url(r'^tournaments/(?P<tournament_id>[0-9]+)/pairings/$', views.tournaments_pairings, name='tournament_pairings'),
+    # ex: /tournaments/5/manage/
+    url(r'^tournaments/(?P<tournament_id>[0-9]+)/manage/$', views.tournaments_manage, name='tournament_manage'),
     # ex: /tournaments/5/next_round
     url(r'^tournaments/(?P<tournament_id>[0-9]+)/next_round/$', views.tournaments_next_round, name='index'),
     # ex: /tournaments/5/submit_result

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load range_filter %}
+{% load plugin_api %}}
+
+{% block head %}
+
+    <style type="text/css">
+        .masthead.segment {
+            padding: 1em 0;
+        }
+
+        .masthead .logo.item img {
+            margin-right: 1em;
+        }
+
+        .masthead h2 {
+            font-size: 1.7em;
+            font-weight: normal;
+        }
+
+        .player_list ul {
+
+            padding-left: 0;
+        }
+
+        .player_list.small {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .player_list li {
+            display: inline-block;
+        }
+
+        .player_list .uid {
+            color: #0f0f10;
+        }
+    </style>
+
+{% endblock head %}
+
+{% block main_content %}
+    <div style="margin-top:3.5em;">
+        <div class="ui inverted vertical masthead segment">
+            <div class="ui container">
+                <div class="ui items">
+                    <div class="item">
+                        <div class="ui small image">
+                            <img src="{% static 'GvsC_Main/rsz_1gvc_logo.png' %}">
+                        </div>
+                        <div class="middle aligned content">
+                            <h3 class="ui huge header GvsC_white">
+                                {{ tournament.title }}
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="ui middle aligned container" style="margin-top:1em;">
+        <div class="ui segment">
+            <h3 class="ui centered header">
+                {{ tournament.game_plugin.title }}
+            </h3>
+            <div class="ui equal width grid">
+                <div class="equal width row">
+                    <div class="column">
+                        <h4>Registration:</h4> {{ tournament.registration_start }}
+                    </div>
+                    <div class="column">
+                        <h4>Round One:</h4> {{ tournament.registration_start }}
+                    </div>
+                </div>
+            </div>
+            <h3 class="ui left aligned header">
+                Description:
+            </h3>
+            <div class="ui left aligned container">
+                {{ tournament.description }}
+            </div>
+        </div>
+        <div>
+            {%block content %} {% endblock content %}
+        </div>
+    </div>
+
+{% endblock main_content %}
+
+{% block javascript_includes %}
+
+<script>
+        function register_semantic_components() {
+            $(".ui.pointing.menu .item").tab({history: false});
+            $('.ui.modal').modal();
+            $('.ui.dropdown').dropdown();
+        }
+</script>
+<script>
+        register_semantic_components();
+</script>
+
+{%block extra_javascript_includes %} {% endblock extra_javascript_includes %}
+{% endblock javascript_includes %}

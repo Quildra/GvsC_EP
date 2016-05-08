@@ -12,7 +12,16 @@ def render_standings_table( tournament, request ):
 def render_pairings_table( tournament, round_number, request ):
     plugin = tournament.game_plugin.get_plugin()
     return mark_safe(plugin.generate_pairings_table(tournament, round_number, request))
+
+@register.simple_tag
+def render_pairings_round_table( tournament, round, request ):
+    plugin = tournament.game_plugin.get_plugin()
+    return mark_safe(plugin.generate_pairings_round_table(tournament, round, request))
     
 @register.filter    
 def get_matches_in_round(tournament, round):    
     return tournament.match_set.filter(round_number__iexact=round)
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)

@@ -1,0 +1,111 @@
+<table class="ui celled padded table">
+    <thead>
+        <tr>
+            <th>Player 1</th>
+            <th class="one wide">Vs.</th>
+            <th>Player 2</th>
+            <th class="three wide">Result</th>
+            <th class="one wide"></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for match in matches %}
+        {% if match.is_bye == False %}
+           <tr>
+                <td>{{match.first.player.player.name}}</td>
+                <td>Vs.</td>
+                <td>{{match.second.player.player.name}}</td>
+                <td>
+                    {% if match.match_completed == True %}
+                        {% if match.first.winner == True %}
+                            {{match.first.player.player.name}} Won.
+                        {% elif match.second.winner == True %}
+                            {{match.second.player.player.name}} Won.
+                        {% else %}
+                            Match Drawn.
+                        {% endif %}
+                    {% else %}
+                        No Result Yet.
+                    {% endif %}
+                </td>
+                <td class="center aligned"><button class="ui button" onclick="$('#{{match.pk}}').modal('show');">Edit</button></td>
+            </tr>
+        {% endif %}
+    {% endfor %}
+    </tbody>
+</table>
+
+{% for match in matches %}
+    {% if match.is_bye == False %}
+        <div class="ui modal" id="{{match.pk}}">
+            <i class="close icon"></i>
+            <div class="header">
+                {{match.first.player.player.name}}  Vs.  {{match.second.player.player.name}}
+            </div>
+            <div>
+                <form class="ui form" method="post" id="match_{{match.pk}}_form" action="/tournaments/{{tournament.pk}}/submit_result/">
+                    {% csrf_token %}
+					<input type="hidden" name="match_id" value={{match.pk}}>
+					<input type="hidden" name="seat_0_id" value={{match.first.pk}}>
+					<input type="hidden" name="seat_1_id" value={{match.second.pk}}>
+                    <div class="ui segment">
+                        <div class="ui two column grid">
+                            <div class="column">
+                                <div class="row">
+                                    <h4 class="ui dividing header">{{match.first.player.player.name}}</h4>
+                                    <div class="fields">
+                                        <div class="inline field">
+                                            <label>Result:</label>
+                                            <div class="ui selection dropdown">
+                                                <input type="hidden" name="seat_0_result" value={{match.first.result_option}}>
+                                                <div class="default text">Result</div>
+                                                <i class="dropdown icon"></i>
+                                                <div class="menu">
+                                                    <div class="item" data-value="1">Win</div>
+                                                    <div class="item" data-value="2">Loss</div>
+                                                    <div class="item" data-value="3">Draw</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="inline field">
+                                            <label>Score:</label>
+                                            <input type="number" name="seat_0_score" min="0" value={{match.first.score}}>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div class="row">
+                                    <h4 class="ui dividing header">{{match.second.player.player.name}}</h4>
+                                    <div class="fields">
+                                        <div class="inline field">
+                                            <label>Result:</label>
+                                            <div class="ui selection dropdown">
+                                                <input type="hidden" name="seat_1_result" value={{match.second.result_option}}>
+                                                <div class="default text">Result</div>
+                                                <i class="dropdown icon"></i>
+                                                <div class="menu">
+                                                    <div class="item" data-value="1">Win</div>
+                                                    <div class="item" data-value="2">Loss</div>
+                                                    <div class="item" data-value="3">Draw</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="inline field">
+                                            <label>Score:</label>
+                                            <input type="number" name="seat_1_score" min="0" value={{match.second.score}}>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="actions">
+                <div class="ui cancel button">Cancel</div>
+                <input type="submit" value="Submit Result" form="match_{{match.pk}}_form" class="ui button">
+            </div>
+        </div>
+    {% endif %}
+{% endfor %}

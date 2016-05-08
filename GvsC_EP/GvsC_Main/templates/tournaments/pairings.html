@@ -1,0 +1,35 @@
+{% extends "tournaments/tournament_base.html" %}
+{% load plugin_api %}
+{% load range_filter %}
+
+{%block content %}
+    <div class="ui pointing menu">
+        <a class="green item" href="/tournaments/{{ tournament.id }}/"> Standings </a>
+        <a class="active blue item" href="/tournaments/{{ tournament.id }}/pairings"> Pairings </a>
+        {% if request.user.is_authenticated == True and request.user.is_staff == True %}
+            <a class="red item" href="/tournaments/{{ tournament.id }}/manage"> Manage </a>
+        {% endif %}
+    </div>
+    <div class="active ui tab segment">
+        <div id="round_container">
+            {% if num_rounds != None %}
+                {% for i in num_rounds|get_one_based_range reversed %}
+                    <div class="ui segment">
+                        <h3> Round {{i}} </h3>
+                        {% for match in rounds|get_item:i %}
+                            {% if match.is_bye %}
+                                <div class="ui info message">
+                                    <div class="header">
+                                        Bye
+                                    </div>
+                                    {{match.first.player.name}} has a bye this round.
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% render_pairings_round_table tournament rounds|get_item:i request%}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}

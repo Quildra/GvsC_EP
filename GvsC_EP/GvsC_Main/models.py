@@ -78,6 +78,8 @@ class Match(models.Model):
     match_completed = models.BooleanField()
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
     is_bye = models.BooleanField(default=False)
+    first = None
+    second = None
     
 class Seating(PolymorphicModel):
     result_option = models.PositiveSmallIntegerField() #Win, Loss, Draw etc up to the plugin to decide meaning.
